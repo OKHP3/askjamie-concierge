@@ -10,3 +10,6 @@ playwright-report/
 .env
 .env.*
 !.env.example
+apps/concierge/public/catalog.json
+apps/concierge/public/version.json
+apps/concierge/public/skills/

@@ -1,0 +1,21 @@
+{
+  "name": "@askjamie/concierge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4173",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4173"
+  },
+  "dependencies": {
+    "@askjamie/api": "workspace:*",
+    "@askjamie/catalog-schema": "workspace:*",
+    "@askjamie/ui-kit": "workspace:*",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "vite": "8.3.0"
+  }
+}

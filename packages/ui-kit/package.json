@@ -1,0 +1,13 @@
+{
+  "name": "@askjamie/ui-kit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.tsx",
+    "./styles.css": "./src/styles.css"
+  },
+  "peerDependencies": {
+    "react": "^19.3.0"
+  }
+}

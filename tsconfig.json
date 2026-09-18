@@ -15,9 +15,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
-    "types": [
-      "node"
-    ]
+    "types": ["node", "vite/client", "vitest/globals"]
   },
   "include": [
     "apps",
