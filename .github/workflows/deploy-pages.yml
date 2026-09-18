@@ -1,0 +1,56 @@
+name: Deploy Pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/concierge/**'
+      - 'apps/api/src/discovery.ts'
+      - 'apps/api/src/application.ts'
+      - 'packages/catalog-schema/**'
+      - 'packages/trust-pipeline/**'
+      - 'packages/ui-kit/**'
+      - 'seed-catalog/**'
+      - 'catalog/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig.json'
+      - '.github/actions/**'
+      - '.github/workflows/deploy-pages.yml'
+      - '.github/workflows/release-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  validation:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/release-validation.yml
+  package:
+    needs: validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: concierge-dist
+          path: public-site
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: public-site
+  deploy:
+    needs: package
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

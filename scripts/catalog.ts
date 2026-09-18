@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { submissionSchema, catalogSchema, findOverlaps, type Submission } from '../packages/catalog-schema/src/index';
-import { assess, decisionSchema, inspectPackage, publish, fresh, type Assessment } from '../packages/trust-pipeline/src/index';
+import { assess, decisionSchema, inspectPackage, publish, publishReaudit, fresh, type Assessment } from '../packages/trust-pipeline/src/index';
 import { ciscoScanner } from '../packages/trust-pipeline/src/scanner';
 
 export const root = process.cwd();
@@ -29,7 +29,7 @@ export async function scanCatalog(): Promise<Assessment[]> {
   await writeFile(resolve(root, '.data/assessments.json'), JSON.stringify(assessments, null, 2) + '\n');
   return assessments;
 }
-export async function buildCatalog() {
+export async function buildCatalog(reaudit = false) {
   const entries = await loadSubmissions();
   const decisions = JSON.parse(await readFile(resolve(root, 'catalog/reviews.json'), 'utf8')).map((v: unknown) => decisionSchema.parse(v));
   const assessments: Assessment[] = JSON.parse(await readFile(resolve(root, '.data/assessments.json'), 'utf8'));
@@ -38,8 +38,8 @@ export async function buildCatalog() {
     const pkg = await inspectPackage(root, entry);
     const assessment = assessments.find(v => v.submission.id === entry.id);
     if (!assessment || assessment.digest !== pkg.digest || !fresh(assessment.evidence.checkedAt)) throw new Error('Run a fresh scan for ' + entry.id);
-    const item = publish(assessment, decisions.find((v: { id:string }) => v.id === entry.id));
-    if (item.trustStatus !== 'verified') throw new Error('Catalog entry is not admitted: ' + entry.id + ' (' + item.trustStatus + ')');
+    const item = (reaudit ? publishReaudit : publish)(assessment, decisions.findLast((v: { id:string; digest:string }) => v.id === entry.id && v.digest === pkg.digest));
+    if (!reaudit && item.trustStatus !== 'verified') throw new Error('Catalog entry is not admitted: ' + entry.id + ' (' + item.trustStatus + ')');
     published.push(item);
   }
   const catalog = catalogSchema.parse(published);
