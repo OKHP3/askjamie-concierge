@@ -1,0 +1,9 @@
+title: "Question: "
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: What would you like to understand about skill review?
+      description: You can ask about checks, limitations, decisions, or ongoing maintenance.
+    validations:
+      required: true
