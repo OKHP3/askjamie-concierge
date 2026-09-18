@@ -1,0 +1,13 @@
+{
+  "name": "@askjamie/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./discovery": "./src/discovery.ts"
+  },
+  "dependencies": {
+    "@askjamie/catalog-schema": "workspace:*",
+    "@askjamie/trust-pipeline": "workspace:*"
+  }
+}
