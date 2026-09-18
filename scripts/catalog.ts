@@ -38,7 +38,8 @@ export async function buildCatalog(reaudit = false) {
     const pkg = await inspectPackage(root, entry);
     const assessment = assessments.find(v => v.submission.id === entry.id);
     if (!assessment || assessment.digest !== pkg.digest || !fresh(assessment.evidence.checkedAt)) throw new Error('Run a fresh scan for ' + entry.id);
-    const item = (reaudit ? publishReaudit : publish)(assessment, decisions.findLast((v: { id:string; digest:string }) => v.id === entry.id && v.digest === pkg.digest));
+    const current = { ...assessment, submission:entry, overlaps:findOverlaps(entry, entries) };
+    const item = (reaudit ? publishReaudit : publish)(current, decisions.findLast((v: { id:string; digest:string }) => v.id === entry.id && v.digest === pkg.digest));
     if (!reaudit && item.trustStatus !== 'verified') throw new Error('Catalog entry is not admitted: ' + entry.id + ' (' + item.trustStatus + ')');
     published.push(item);
   }

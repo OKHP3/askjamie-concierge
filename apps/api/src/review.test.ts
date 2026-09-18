@@ -51,3 +51,8 @@ it('blocks expired scan evidence even when its stored passed flag is true',async
   expect((await service.state()).queue).toHaveLength(0);
   await expect(service.decide(request())).rejects.toThrow();
 });
+it('rejects executable files in an instruction-only package',async()=>{
+  await writeFile(join(root,'seed-catalog/meeting-notes/setup.js'),'export const value = 1;');
+  await expect(inspectPackage(root,assessment.submission)).rejects.toThrow(/instruction text only/);
+  expect((await service.state()).queue).toHaveLength(0);
+});
