@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { publish, recordDecision, fresh, type Assessment } from './index';
+import { publish, publishReaudit, recordDecision, fresh, type Assessment } from './index';
 import { parseScannerReport } from './scanner';
 const now = new Date().toISOString();
 const assessment: Assessment = {
@@ -34,5 +34,13 @@ describe('trust boundaries', () => {
   it('rejects future and invalid timestamps', () => {
     expect(fresh('unknown')).toBe(false);
     expect(fresh(new Date(Date.now()+3600_000).toISOString())).toBe(false);
+  });
+  it('retains moderate findings only for unchanged admitted packages during re-audit', () => {
+    const moderate = { ...assessment, mechanicalPassed:false, evidence:{...assessment.evidence, findings:[{ruleId:'test',severity:'MEDIUM' as const,title:'New finding'}]} };
+    expect(publish(moderate,decision).trustStatus).toBe('flagged');
+    expect(publishReaudit(moderate,decision).trustStatus).toBe('verified');
+    expect(publishReaudit(moderate).trustStatus).toBe('flagged');
+    expect(publishReaudit({...moderate,digest:'b'.repeat(64)},decision).trustStatus).toBe('flagged');
+    expect(publishReaudit({...moderate,evidence:{...moderate.evidence,findings:[{ruleId:'test',severity:'HIGH',title:'New severe finding'}]}},decision).trustStatus).toBe('flagged');
   });
 });

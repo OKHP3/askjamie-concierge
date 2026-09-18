@@ -1,12 +1,15 @@
-import { copyFile, mkdir, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { copyFile, mkdir, writeFile, rm } from 'node:fs/promises';
+import { resolve, relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { buildCatalog } from './catalog';
-const catalog = await buildCatalog();
+const catalog = await buildCatalog(process.argv.includes('--reaudit'));
 const target = resolve('apps/concierge/public');
 await mkdir(target,{recursive:true});
+const skillOutput = resolve(target, 'skills');
+if (relative(target, skillOutput) !== 'skills') throw new Error('Unexpected generated skill directory.');
+await rm(skillOutput, { recursive:true, force:true });
 await writeFile(resolve(target,'catalog.json'),JSON.stringify(catalog));
-for(const entry of catalog) {
+for(const entry of catalog.filter(v=>v.trustStatus === 'verified')) {
   const dir=resolve(target,'skills',entry.id);
   await mkdir(dir,{recursive:true});
   await copyFile(resolve(entry.sourcePackageRef),resolve(dir,'SKILL.md'));

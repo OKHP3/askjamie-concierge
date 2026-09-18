@@ -93,3 +93,12 @@ export function recordDecision(assessment: Assessment, input: unknown): Decision
   if (Date.parse(decision.reviewedAt) > Date.now() + 60_000) throw new Error('Review time cannot be in the future.');
   return decision;
 }
+
+export function publishReaudit(assessment: Assessment, rawDecision?: unknown): CatalogEntry {
+  const decision = rawDecision === undefined ? undefined : decisionSchema.parse(rawDecision);
+  const previouslyApproved = decision?.decision === 'approved' && decision.digest === assessment.digest && decision.id === assessment.submission.id;
+  const severe = assessment.evidence.findings.some(v => ['HIGH', 'CRITICAL'].includes(v.severity));
+  // Only an unchanged, previously admitted package may retain status while a medium finding is reviewed.
+  const retained = previouslyApproved && !severe && fresh(assessment.evidence.checkedAt);
+  return publish({ ...assessment, mechanicalPassed: retained || assessment.mechanicalPassed }, decision);
+}
