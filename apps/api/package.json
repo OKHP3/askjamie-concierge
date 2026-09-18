@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./discovery": "./src/discovery.ts"
+    "./discovery": "./src/discovery.ts",
+    "./application": "./src/application.ts"
   },
   "dependencies": {
     "@askjamie/catalog-schema": "workspace:*",

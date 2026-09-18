@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Header, Arrow } from '@askjamie/ui-kit';
 import { platformNames, type CatalogEntry, type Platform } from '@askjamie/catalog-schema';
 import { discover, fetchCatalog, type Match } from '@askjamie/api/discovery';
+import { ApplicationGuide } from './ApplicationGuide';
 
 const examples = ['Summarize meeting notes','Organize an expense report','Review a code change'];
 export function App() {
@@ -11,6 +12,7 @@ export function App() {
   const [platform,setPlatform] = useState<Platform | ''>('');
   const [prompt,setPrompt] = useState('');
   const [matches,setMatches] = useState<Match[] | null>(null);
+  const [selected,setSelected] = useState<CatalogEntry | null>(null);
   const resultRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => { let active=true; fetchCatalog(import.meta.env.BASE_URL).then(v=>{if(active)setCatalog(v);}).catch(()=>{if(active)setLoadError('The skill catalog is unavailable. Please reload to try again.');}); return ()=>{active=false;}; },[]);
   useEffect(()=>{if(matches) resultRef.current?.focus();},[matches]);
@@ -21,13 +23,13 @@ export function App() {
     if(!catalog)return;
     setPrompt('');setMatches(discover(catalog,goal,platform));
   }
-  function startAgain() { setMatches(null);setPrompt(''); }
+  function startAgain() { setMatches(null);setSelected(null);setPrompt(''); }
   return <><a className="skip-link" href="#main">Skip to guidance</a><Header><a href="#how-it-works">How it works</a></Header>
     <main id="main" className="concierge-layout">
       <section className="conversation">
         <h1>What would you like to get done?</h1>
         <p className="intro">Tell me about a task. I’ll help you find a reviewed skill and show you how to use it.</p>
-        {matches === null ? <>
+        {selected && platform ? <ApplicationGuide entry={selected} platform={platform} onBack={()=>setSelected(null)}/> : matches === null ? <>
           <form className="intake" onSubmit={search}>
             <h2>Start with the work, in your own words.</h2>
             <label htmlFor="goal">Your goal</label>
@@ -42,7 +44,7 @@ export function App() {
         </> : <section className="results" aria-live="polite">
           <div className="your-goal"><span className="small muted">Your goal · {platform ? platformNames[platform] : ''}</span><p>{goal}</p></div>
           <h2 tabIndex={-1} ref={resultRef}>{matches.length ? matches.length === 1 ? 'I found a good fit.' : 'These are the closest fits.' : 'I could not find a good fit yet.'}</h2>
-          {matches.length ? <ol className="match-list">{matches.map(({entry,reason})=><li key={entry.id}><p className="trust-label">Reviewed for this catalog</p><h3>{entry.displayName}</h3><p>{reason}</p><p className="small muted">Checked {new Date(entry.trustLastCheckedAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}. Review the result before using it.</p></li>)}</ol> : <p>This small catalog may not cover your task. Try describing the result you need. Guided contributions are planned for a later release.</p>}
+          {matches.length ? <ol className="match-list">{matches.map(({entry,reason})=><li key={entry.id}><p className="trust-label">Reviewed for this catalog</p><h3>{entry.displayName}</h3><p>{reason}</p><p className="small muted">Checked {new Date(entry.trustLastCheckedAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}. Review the result before using it.</p><button className="primary" onClick={()=>setSelected(entry)}>Show me how to use it <Arrow/></button></li>)}</ol> : <p>This small catalog may not cover your task. Try describing the result you need. Guided contributions are planned for a later release.</p>}
           <button className="quiet" onClick={startAgain}>Describe another task</button>
         </section>}
       </section>

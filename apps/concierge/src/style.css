@@ -23,6 +23,7 @@
 .match-list h3{font-size:23px}
 .match-list p{margin-bottom:12px}
 .trust-label{color:var(--accent);font-size:14px}
+.installation{padding-left:23px}.installation li{padding:18px 0 12px 8px}.installation pre{margin-top:16px}.application>.trust-label{margin-top:22px}.outcome{border-top:1px solid var(--line);padding-top:25px;margin-top:28px}.application h2{font-size:30px}.installation li>p:last-child{margin-top:15px}
 @media(max-width:1510px){.concierge-layout{margin-inline:36px}}
 @media(min-width:1250px){.concierge-layout{gap:38px;grid-template-columns:minmax(0,2.04fr) minmax(320px,1fr)}}
 @media(max-width:1050px){.concierge-layout{gap:25px;grid-template-columns:minmax(0,1.8fr) minmax(260px,1fr)}.guidance{padding:30px 25px}.guidance>h2{font-size:29px}.intro{font-size:17px}}
