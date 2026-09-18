@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readdir, readFile, lstat, realpath } from 'node:fs/promises';
-import { resolve, relative, isAbsolute, dirname, sep } from 'node:path';
+import { resolve, relative, isAbsolute, dirname, sep, extname } from 'node:path';
 import { parseDocument } from 'yaml';
 import { z } from 'zod';
 import { catalogEntrySchema, findOverlaps, parseSubmission, type CatalogEntry, type Submission } from '@askjamie/catalog-schema';
@@ -32,12 +32,14 @@ export async function inspectPackage(root: string, entry: Submission): Promise<{
     if ((await lstat(part)).isSymbolicLink()) throw new Error('Symlinked package paths are not admitted.');
   }
   const files: { path: string; text: string }[] = [];
-  async function visit(folder: string) {
+  async function visit(folder: string, depth = 0) {
+    if (depth > 4) throw new Error('Package folders exceed the review depth limit.');
     for (const item of (await readdir(folder, { withFileTypes: true })).sort((a,b) => a.name.localeCompare(b.name))) {
       const path = resolve(folder, item.name);
       if (item.isSymbolicLink()) throw new Error('Symlinked package files are not admitted.');
-      if (item.isDirectory()) await visit(path);
+      if (item.isDirectory()) await visit(path, depth + 1);
       else {
+        if (!['.md', '.txt'].includes(extname(item.name).toLowerCase())) throw new Error('This release admits instruction text only; executable or dependency files need a policy review.');
         if (files.length >= 30 || (await lstat(path)).size > 100_000) throw new Error('Package exceeds the review size limit.');
         const bytes = await readFile(path);
         const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes).replace(/\r\n/g, '\n');
@@ -75,9 +77,17 @@ export function fresh(checkedAt: string, now = Date.now()): boolean {
   return Number.isFinite(age) && age >= -60_000 && age <= MAX_AGE_MS;
 }
 export function publish(assessment: Assessment, rawDecision?: unknown): CatalogEntry {
+  return publishWithPolicy(assessment, rawDecision, false);
+}
+function publishWithPolicy(assessment: Assessment, rawDecision: unknown, retainModerate: boolean): CatalogEntry {
   const decision = rawDecision === undefined ? undefined : decisionSchema.parse(rawDecision);
+  const evidence = assessment.evidence;
+  if (evidence.scanner !== 'cisco-ai-skill-scanner' || evidence.version !== SCANNER_VERSION) throw new Error('Unexpected scanner identity.');
+  const findings = evidence.findings.map(v => findingSchema.parse(v));
+  const prohibited = findings.some(v => (retainModerate ? ['HIGH', 'CRITICAL'] : ['MEDIUM', 'HIGH', 'CRITICAL']).includes(v.severity));
+  if (decision && Date.parse(decision.reviewedAt) > Date.now() + 60_000) throw new Error('Review time cannot be in the future.');
   let trustStatus: CatalogEntry['trustStatus'] = 'pending-review';
-  if (!assessment.mechanicalPassed) trustStatus = 'flagged';
+  if ((!assessment.mechanicalPassed && !retainModerate) || prohibited) trustStatus = 'flagged';
   else if (decision?.digest === assessment.digest && decision.id === assessment.submission.id) {
     if (decision.decision === 'rejected') trustStatus = 'rejected';
     else if (!assessment.overlaps.length || decision.overlapRationale) trustStatus = 'verified';
@@ -100,5 +110,5 @@ export function publishReaudit(assessment: Assessment, rawDecision?: unknown): C
   const severe = assessment.evidence.findings.some(v => ['HIGH', 'CRITICAL'].includes(v.severity));
   // Only an unchanged, previously admitted package may retain status while a medium finding is reviewed.
   const retained = previouslyApproved && !severe && fresh(assessment.evidence.checkedAt);
-  return publish({ ...assessment, mechanicalPassed: retained || assessment.mechanicalPassed }, decision);
+  return publishWithPolicy(assessment, decision, retained);
 }

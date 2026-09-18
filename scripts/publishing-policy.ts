@@ -1,5 +1,5 @@
 import { parseDocument } from 'yaml';
-export const watchedPaths = ['apps/concierge/**','apps/api/src/discovery.ts','apps/api/src/application.ts','packages/catalog-schema/**','packages/trust-pipeline/**','packages/ui-kit/**','seed-catalog/**','catalog/**','scripts/**','package.json','pnpm-lock.yaml','pnpm-workspace.yaml','tsconfig.json','.github/actions/**','.github/workflows/deploy-pages.yml','.github/workflows/release-validation.yml'];
+export const watchedPaths = ['apps/concierge/**','apps/api/package.json','apps/api/src/discovery.ts','apps/api/src/application.ts','packages/catalog-schema/**','packages/trust-pipeline/**','packages/ui-kit/**','seed-catalog/**','catalog/**','scripts/**','package.json','pnpm-lock.yaml','pnpm-workspace.yaml','tsconfig.json','.github/actions/**','.github/workflows/deploy-pages.yml','.github/workflows/release-validation.yml'];
 export function validatePublishing(text:string):void {
   const doc=parseDocument(text,{uniqueKeys:true});
   if(doc.errors.length)throw new Error('Invalid publishing YAML.');

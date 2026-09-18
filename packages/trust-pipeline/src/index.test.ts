@@ -26,6 +26,11 @@ describe('trust boundaries', () => {
     expect(publish(overlap, decision).trustStatus).toBe('pending-review');
   });
   it('records a reasoned rejection', () => expect(publish(assessment, { ...decision, decision:'rejected' }).trustStatus).toBe('rejected'));
+  it('rechecks evidence and judgment instead of trusting a saved pass flag', () => {
+    expect(publish({...assessment,evidence:{...assessment.evidence,findings:[{ruleId:'test',severity:'HIGH',title:'Unsafe instructions'}]}},decision).trustStatus).toBe('flagged');
+    expect(() => publish({...assessment,evidence:{...assessment.evidence,version:'unknown'}},decision)).toThrow(/identity/);
+    expect(() => publish(assessment,{...decision,reviewedAt:new Date(Date.now()+3600_000).toISOString()})).toThrow(/future/);
+  });
   it('fails closed on missing or partial scanner results', () => {
     const report = { skill_name:'meeting-notes', timestamp:now, findings_count:0, findings:[], analyzers_used:['static_analyzer'] };
     expect(parseScannerReport(report).findings).toEqual([]);

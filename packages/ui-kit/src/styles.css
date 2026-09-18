@@ -8,7 +8,7 @@ a{color:var(--accent);text-underline-offset:4px}
 button{cursor:pointer}
 button:disabled{cursor:wait;opacity:.6}
 :focus-visible{outline:3px solid #2b8dbe;outline-offset:4px}
-.site-header{max-width:1440px;margin:auto;padding:30px 0 26px;border-bottom:1px solid #aebfb7;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.site-header{max-width:1440px;margin:auto;padding:36px 0 28px;border-bottom:1px solid #aebfb7;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .wordmark{display:flex;gap:9px;align-items:baseline;text-decoration:none;font-size:28px;letter-spacing:-.8px;color:#243531}
 .wordmark strong{color:var(--accent);font-weight:650}
 .site-header>a:not(.wordmark){color:#58655f;font-size:17px}

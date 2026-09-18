@@ -8,4 +8,7 @@ Copyright Cisco Systems, Inc. and contributors.
 Licensed under the Apache License, Version 2.0.
 Source: https://github.com/cisco-ai-defense/skill-scanner
 License: docs/licenses/skill-scanner-Apache-2.0.txt
+Full Apache License: docs/licenses/Apache-2.0.txt
 The scanner is an external dependency, not original project code. No upstream NOTICE file is included in the 2.1.0 distribution.
+
+Public browser dependency notices are included in apps/concierge/public/THIRD_PARTY_NOTICES.txt and distributed with the site.

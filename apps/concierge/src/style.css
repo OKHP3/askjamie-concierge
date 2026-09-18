@@ -1,6 +1,8 @@
 .concierge-layout{max-width:1440px;margin:32px auto 40px;display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:38px}
 .conversation{padding-top:30px;min-width:0}
-.intro{font-size:19px;line-height:1.6;color:var(--muted);margin-bottom:30px}
+.conversation>h1{font-size:clamp(30px,3.9vw,60px)}
+.intro{font-size:24px;line-height:1.6;color:var(--muted);margin-bottom:30px}
+.intake textarea{min-height:172px}
 .intake{border:1px solid var(--line);border-radius:12px;padding:28px}
 .intake h2{font-size:20px;font-weight:550;letter-spacing:-.3px;margin-bottom:4px}
 .submit-row{display:flex;justify-content:flex-end;margin-top:24px}
@@ -8,12 +10,12 @@
 .examples{display:flex;gap:10px;flex-wrap:wrap}
 .examples button{font-size:14px;padding:10px 14px;font-weight:400}
 .guidance{background:var(--sage);border-radius:18px;padding:40px 36px 22px;display:flex;flex-direction:column}
-.guidance>h2{font-size:34px;line-height:1.15;letter-spacing:-1px;margin:3px 0 34px}
+.guidance>h2{font-size:42px;line-height:1.15;letter-spacing:-1px;margin:3px 0 40px}
 .guidance ol{list-style:none;padding:0;counter-reset:steps;margin:0}
-.guidance li{display:flex;gap:18px;counter-increment:steps;margin-bottom:32px}
+.guidance li{display:flex;gap:18px;counter-increment:steps;margin-bottom:40px}
 .guidance li::before{content:counter(steps);background:#d9e6df;color:#153f36;font-size:20px;border-radius:50%;width:38px;height:38px;flex-shrink:0;display:grid;place-items:center}
-.guidance h3{margin:4px 0 9px}
-.guidance li p{color:var(--muted);font-size:15px;line-height:1.6;margin:0}
+.guidance h3{margin:4px 0 9px;font-size:21px}
+.guidance li p{color:var(--muted);font-size:18px;line-height:1.6;margin:0}
 .privacy{border-top:1px solid #c3d2ca;margin-top:auto;padding-top:23px;color:var(--muted)}
 .your-goal{border-left:3px solid #b8cec2;padding:14px 20px;background:var(--sage);margin-bottom:30px}
 .your-goal p{margin:8px 0 0;overflow-wrap:anywhere}

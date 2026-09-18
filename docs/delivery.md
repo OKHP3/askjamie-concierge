@@ -14,7 +14,7 @@ The generated version file identifies the source commit. A build manifest hashes
 
 ## Independent health lane
 
-Checks run every 30 minutes and after publication workflows finish. The checker discovers the actual Pages URL from the API, finds the last successful deployment workflow's source commit, and verifies the live version, manifest, and each public file's SHA-256. It does not compare to the newest unrelated main commit.
+Checks run every 30 minutes and after successful or failed publication workflows finish. Superseded, cancelled, and skipped runs do not create deployment incidents. The checker discovers the actual Pages URL from the API, finds the last successful deployment workflow's source commit, and verifies the live version, manifest, and each public file's SHA-256. It does not compare to the newest unrelated main commit.
 
 Consecutive scheduled failure counts persist in a dedicated artifact across runs. Three consecutive scheduled failures open a publish-health issue; a deploy failure opens one immediately. Successful verification resets the counter and automatically closes an open incident. An optional HTTPS secret, `PUBLISH_HEALTH_WEBHOOK_URL`, receives one JSON notification when an incident opens and one on recovery. Continuing incidents do not repeat notifications. Notification delivery failure is logged without replaying a possibly delivered message.
 
