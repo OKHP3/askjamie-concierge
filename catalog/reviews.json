@@ -1,0 +1,56 @@
+[
+  {
+    "id": "meeting-notes",
+    "digest": "67b922709f53c8982ed3e2a1fcf8ec4c68f49ac8886250d5582c1a8c524603b4",
+    "decision": "approved",
+    "reviewer": "Bootstrap coding agent",
+    "reviewerKind": "agent-assisted",
+    "reviewedAt": "2026-09-18T16:13:34.428Z",
+    "rationale": "Reviewed all instructions and the example. The scope is limited to supplied meeting notes; decisions remain separate from suggestions, missing owners and dates stay unknown, and no external assignments are made. Clear triggers and inspectable output make this useful without overlapping the project-brief task."
+  },
+  {
+    "id": "expense-report-formatter",
+    "digest": "bb93bc159ac4115364f3d5358c9dd3b7adde4b7a4024d42b54afd6701d0d0a1c",
+    "decision": "approved",
+    "reviewer": "Bootstrap coding agent",
+    "reviewerKind": "agent-assisted",
+    "reviewedAt": "2026-09-18T16:13:34.429Z",
+    "rationale": "Reviewed the package for scope, triggers, and limitations. It formats supplied expenses, separates currencies, shows arithmetic, and leaves eligibility and tax judgments outside the skill. Missing data is visible and submission requires the user's separate action. This is distinct from a general spreadsheet-quality check."
+  },
+  {
+    "id": "customer-email-triage",
+    "digest": "78380c3a5b84bd220b25d0e36e824eb685aa88f35633959f437749d38d2c48da",
+    "decision": "approved",
+    "reviewer": "Bootstrap coding agent",
+    "reviewerKind": "agent-assisted",
+    "reviewedAt": "2026-09-18T16:13:34.429Z",
+    "rationale": "Reviewed all instructions. The task is classification of supplied messages with evidence for urgency, not autonomous response or mailbox access. It treats message content as untrusted, preserves uncertainty, and avoids refund promises. A clear support triage use case with appropriate human review."
+  },
+  {
+    "id": "code-review-checklist",
+    "digest": "fc7ea294a1b06b3912862ba23985078b1b732afbff879b69a874b01f65f3cb65",
+    "decision": "approved",
+    "reviewer": "Bootstrap coding agent",
+    "reviewerKind": "agent-assisted",
+    "reviewedAt": "2026-09-18T16:13:34.429Z",
+    "rationale": "Reviewed the full checklist workflow. It analyzes a supplied diff without executing code or approving a merge, distinguishes evidence from missing context, and demands behavior-specific test questions. This narrow review-preparation role is useful and separate from document summarization."
+  },
+  {
+    "id": "project-brief",
+    "digest": "cbd040b4252245585760bc5cb2f7e8400388c8c518396dd51b94b06a48a808db",
+    "decision": "approved",
+    "reviewer": "Bootstrap coding agent",
+    "reviewerKind": "agent-assisted",
+    "reviewedAt": "2026-09-18T16:13:34.429Z",
+    "rationale": "Reviewed the scope and example. The skill turns an idea into a bounded brief, separates facts from assumptions, and does not invent budgets, owners, or commitments. It focuses on planning a future project rather than summarizing an existing meeting, providing a distinct catalog purpose."
+  },
+  {
+    "id": "spreadsheet-quality-check",
+    "digest": "14c12a5b700b2069beee7990117b622776853d4ea1b5f38bc880d266a84074cb",
+    "decision": "approved",
+    "reviewer": "Bootstrap coding agent",
+    "reviewerKind": "agent-assisted",
+    "reviewedAt": "2026-09-18T16:13:34.429Z",
+    "rationale": "Reviewed the sample limits and instructions. The skill reports observed missingness, format inconsistencies, and possible duplicates without silently changing data. It explicitly limits claims to the supplied sample and does not infer sensitive attributes. Distinct from expense report formatting."
+  }
+]

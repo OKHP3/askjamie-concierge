@@ -1,0 +1,104 @@
+[
+  {
+    "id": "meeting-notes",
+    "displayName": "Meeting Notes to Next Steps",
+    "plainDescription": "Turns rough meeting notes into a concise summary, recorded decisions, and an action list with owners.",
+    "triggerHints": [
+      "summarize meeting notes",
+      "turn meeting minutes into action items",
+      "organize discussion decisions"
+    ],
+    "compatiblePlatforms": [
+      "claude",
+      "copilot"
+    ],
+    "sourcePackageRef": "seed-catalog/meeting-notes/SKILL.md",
+    "contributedBy": "AskJamie Concierge contributors",
+    "version": "1.0.0"
+  },
+  {
+    "id": "expense-report-formatter",
+    "displayName": "Expense Report Formatter",
+    "plainDescription": "Organizes a supplied expense list into a consistent report, highlighting missing amounts, dates, and receipts.",
+    "triggerHints": [
+      "format my expenses",
+      "organize receipts for reimbursement",
+      "prepare an expense report"
+    ],
+    "compatiblePlatforms": [
+      "claude",
+      "copilot"
+    ],
+    "sourcePackageRef": "seed-catalog/expense-report-formatter/SKILL.md",
+    "contributedBy": "AskJamie Concierge contributors",
+    "version": "1.0.0"
+  },
+  {
+    "id": "customer-email-triage",
+    "displayName": "Customer Email Triage",
+    "plainDescription": "Sorts supplied customer messages by topic and urgency, with suggested next steps for a person to review.",
+    "triggerHints": [
+      "triage customer emails",
+      "prioritize support messages",
+      "sort customer inbox requests"
+    ],
+    "compatiblePlatforms": [
+      "claude",
+      "copilot"
+    ],
+    "sourcePackageRef": "seed-catalog/customer-email-triage/SKILL.md",
+    "contributedBy": "AskJamie Concierge contributors",
+    "version": "1.0.0"
+  },
+  {
+    "id": "code-review-checklist",
+    "displayName": "Code Review Checklist",
+    "plainDescription": "Creates a focused review checklist from a supplied code change and its intended behavior.",
+    "triggerHints": [
+      "review a code change",
+      "make a pull request checklist",
+      "check a patch before merging"
+    ],
+    "compatiblePlatforms": [
+      "claude",
+      "copilot"
+    ],
+    "sourcePackageRef": "seed-catalog/code-review-checklist/SKILL.md",
+    "contributedBy": "AskJamie Concierge contributors",
+    "version": "1.0.0"
+  },
+  {
+    "id": "project-brief",
+    "displayName": "Project Brief Builder",
+    "plainDescription": "Shapes a rough project idea into a short brief with purpose, scope, deliverables, and open decisions.",
+    "triggerHints": [
+      "write a project brief",
+      "turn an idea into a scope statement",
+      "outline project deliverables"
+    ],
+    "compatiblePlatforms": [
+      "claude",
+      "copilot"
+    ],
+    "sourcePackageRef": "seed-catalog/project-brief/SKILL.md",
+    "contributedBy": "AskJamie Concierge contributors",
+    "version": "1.0.0"
+  },
+  {
+    "id": "spreadsheet-quality-check",
+    "displayName": "Spreadsheet Quality Checklist",
+    "plainDescription": "Reviews supplied table samples for missing values, duplicate records, and inconsistent formats before analysis.",
+    "triggerHints": [
+      "check a spreadsheet for errors",
+      "find missing values in a table",
+      "check duplicate records in data"
+    ],
+    "compatiblePlatforms": [
+      "claude",
+      "copilot"
+    ],
+    "sourcePackageRef": "seed-catalog/spreadsheet-quality-check/SKILL.md",
+    "contributedBy": "AskJamie Concierge contributors",
+    "version": "1.0.0"
+  }
+]
