@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'apps/concierge/**'
+      - 'apps/api/package.json'
       - 'apps/api/src/discovery.ts'
       - 'apps/api/src/application.ts'
       - 'packages/catalog-schema/**'
