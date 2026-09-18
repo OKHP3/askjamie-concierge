@@ -1,0 +1,21 @@
+name: Report a problem
+description: Tell us what happened and what you expected.
+labels: [bug]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Include steps to reproduce using fictional data. For a security concern, follow SECURITY.md.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser and agent platform

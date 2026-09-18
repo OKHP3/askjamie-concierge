@@ -1,0 +1,30 @@
+name: Skill request
+description: Describe a recurring task you would like help with.
+title: "Skill request: "
+labels: [skill-request]
+body:
+  - type: markdown
+    attributes:
+      value: "Please use fictional examples. Do not include personal records, passwords, customer data, or confidential documents."
+  - type: textarea
+    id: task
+    attributes:
+      label: What are you trying to do?
+      description: Explain the recurring task in your own words.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What would a useful result look like?
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Which agent do you use?
+      options: [Claude Code, GitHub Copilot, Another agent, Not sure yet]
+  - type: textarea
+    id: current
+    attributes:
+      label: How do you do this today?
