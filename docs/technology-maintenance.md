@@ -1,0 +1,52 @@
+# Technology inventory and update policy
+
+The [complete version inventory](technology-inventory.md) records the source, resolved version, latest stable upstream release, and evidence boundaries for this review. It covers the application, build and test tools, security scanner, all npm lockfile entries, installed Python dependencies, automation actions, runtimes, and supporting standards. “Newer” is not evidence that a replacement is compatible or safe.
+
+## What changes automatically
+
+| Technology | Tracking and update mechanism | Acceptance |
+| --- | --- | --- |
+| Direct npm packages in all pnpm workspaces | Dependabot checks daily and opens PRs with manifest and lockfile changes. Minor/patch updates are grouped. React and its types stay together for major updates. Other major upgrades remain separate. | Existing protected-main release checks, review of migration notes, and relevant browser checks. |
+| npm transitive/platform packages | The daily audit checks every lockfile entry against npm. Dependabot updates dependencies as their parents are upgraded; not every transitive major is directly updatable. | Inspect the dependency parent before refreshing the lockfile; do not force arbitrary transitive majors with overrides. |
+| Cisco skill scanner | Dependabot checks its exact Python requirement daily. | A scanner-pin contract test blocks upgrades until the evidence identity and version-dependent fixtures are updated together. Real clean/unsafe fixture scans, all catalog scans, and build gates must pass. |
+| Python transitive dependencies | Fresh CI environments resolve compatible versions allowed by the scanner. The daily report captures the installed set and compares it with PyPI. | Daily release validation exercises the resolved scanner environment. This is not a reproducible Python lock; see the follow-up plan below. |
+| GitHub Actions | Dependabot checks workflow files and **both local composite action directories** daily, retaining full commit pins. | Review release notes and runner requirements, then pass the existing release checks. Keep artifact producers and consumers compatible. |
+| Node.js 24 and Python 3.12 patches | `check-latest: true` in both setup actions requests the latest available supported patch on every run. Daily Technology watch also runs the complete reusable release-validation workflow. | All release gates still run before Pages publication. A new runtime patch cannot bypass scanner or judgment checks. |
+| pnpm, new Node LTS lines, new Python lines, GitHub API calendar versions | The daily audit reports current and latest versions. These coordinated migrations have an explicit review plan below; Dependabot is not claimed to update them. | Maintainer prepares one scoped migration PR, updates related pins and documentation, and runs all gates. |
+| Git, shells, OS, browsers, local installers, hosted services | Provider/administrator updates plus the supporting-tool inventory below. Review at least monthly and when a security advisory affects a used tool. | Verify the actual host; repository CI cannot update a person's workstation or prove Replit's environment. |
+
+Dependabot runs after this configuration reaches the default branch. Its daily schedule can be delayed by GitHub. Technology watch runs daily at 08:35 UTC, can be started manually, and tests its inventory job on pull requests that change the maintenance implementation. Pull requests already run Release validation independently; daily/manual runs invoke it through Technology watch as well. It writes a readable job summary and a JSON/Markdown artifact retained for 30 days. A failed or incomplete upstream lookup makes the audit fail; missing data never means “current.” A successful audit means the inventory completed, even when updates are available. The audit is a version check, not a vulnerability assessment.
+
+No auto-merge is configured. Routine update PRs are reviewable proposals, and passing required checks does not by itself authorize a breaking migration. Existing deployment and independent publication-health workflows continue to control the live site. A workflow-only action upgrade can require a manual Deploy Pages run after merge to exercise the actual hosting boundary.
+
+## Initial migration order
+
+1. **Supported Node patch and local tooling.** Use Node 24.21.0 or a later supported 24.x patch. The previous local Node 24.11.1 was below jsdom 30.1.0's Node 24.15 minimum. This change tightens `engines.node` to `>=24.15 <25` and makes CI request the latest patch. Use `corepack pnpm` so the repository's package-manager pin wins over a different global pnpm. Workstation installations are separate from CI; no global installation is changed by this PR.
+2. **Action upgrades.** Review the eight action upgrade candidates in the inventory. Upgrade upload/download-artifact as a compatible pair, and review upload-pages-artifact/deploy-pages together. Keep the SHA pins, least-privilege permissions, validation dependency, public/private artifact boundary, and existing deployment policy. Test the changed workflows on a PR and verify Pages after an approved merge.
+3. **pnpm migration.** The repository uses 10.34.5; the latest stable release at the audit was 12.4.2. GitHub's [supported ecosystems](https://docs.github.com/en/code-security/reference/supply-chain-security/supported-ecosystems-and-repositories) lists pnpm support through v10. A reported [v12 multi-document lockfile issue](https://github.com/dependabot/dependabot-core/issues/15904) is additional migration evidence, not proof that every installation fails. Stay on the supported 10.x line until a disposable branch proves package-manager, frozen-install, Dependabot, dependency-graph, and audit-reader compatibility. Update `packageManager`, any changed workspace build-approval syntax, the inventory reader, and the regenerated lockfile in the same PR. New major pnpm versions must not silently disable the updater.
+4. **Python and scanner reproducibility.** CI already used Python 3.12.14 in the verified baseline run; the local scanner environment used 3.12.10. Test Python 3.14.7 or its later stable patch in an isolated environment against the scanner's declared `<3.15,>=3.11` range before promoting the CI line and README. Separately propose a generated, cross-platform Python lock/constraints file and its regeneration job; today only the scanner itself is exactly pinned, so the installed transitive inventory is host-specific. Do not independently bump mutually constrained packages such as boto3/botocore or pydantic/pydantic_core.
+5. **Node LTS and its types.** Keep Node 24 and `@types/node` 24 together. The latest Current release, Node 26.9.0, is not the current LTS target. When promoting a supported LTS line, change the engine constraint, setup action, Node types, README, and relevant tests together. The audit still reports newer Node types even though Dependabot's automatic major proposals for that package are intentionally excluded.
+6. **GitHub API version.** The repository explicitly requests `2022-11-28`; GitHub now also offers `2026-03-10`. Review the [breaking-change announcement](https://github.blog/changelog/2026-03-12-rest-api-version-2026-03-10-is-now-available/) and test publication-health, issue tracking, and submission-triage API responses before updating all header sites. Calendar API versions are not npm packages.
+7. **Remaining transitive candidates and standards.** Review the daily report weekly; refresh compatible lockfile resolutions in a scoped PR when parent constraints permit. Review runtime/API/package-manager migration candidates monthly, and promptly for relevant security fixes. Keep ES2023 unless a tested browser-support decision calls for a newer target. HTML/CSS standards and hosted services do not have a universal package version to bump.
+
+If an update fails, keep it on its PR and investigate the compatibility error. After a merged regression, revert through a new PR and rerun release/publication checks; do not rewrite published history, disable a failing gate, or reuse stale scanner evidence.
+
+## Re-run the inventory
+
+Install the repository's pinned workspace dependencies and scanner as described in the README, then run:
+
+```sh
+corepack pnpm technology:audit
+```
+
+Set `GH_TOKEN` through your existing credential mechanism for authenticated GitHub release lookups; never put the token in a command argument, tracked file, or report. Anonymous requests may hit GitHub's rate limit. The workflow supplies its read-only token to the audit step. Results go to ignored `.data/technology/inventory.json` and `.data/technology/inventory.md`; the committed document is the dated review snapshot, not a claim to remain current forever.
+
+The audit discovers npm entries from the lockfile and scanner packages from the active `.venv`. It queries npm's publisher-selected `latest` channel, excludes prerelease/yanked PyPI releases, resolves action release tags from actual pinned SHAs, reads Node's release index, Python's release page, and GitHub's supported API versions. It reports “ahead of stable” without automatically downgrading a package. Unsupported lockfile formats fail instead of returning an empty inventory.
+
+## Required evidence for accepting an update
+
+Use the pinned pnpm and a supported Node runtime. Run a frozen install, type checking, tests, catalog/publishing checks, real scanner smoke, fresh catalog scan, security admission, both production builds, and build-output verification. The existing reusable Release validation workflow performs these release gates. UI/runtime changes also need the relevant concierge and review-desk browser flows. Scanner upgrades must retain tests for missing evidence, failed analysis, stale decisions, and unknown scanner identities.
+
+The current main branch requires the seven release checks and enforces them for administrators; it requires zero second-person approvals for the solo maintainer. This change does not alter branch protection. GitHub success, local success, Replit state, and live Pages evidence are recorded separately.
+
+Sources: [Dependabot configuration](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference), [setup-node inputs](https://github.com/actions/setup-node), and [setup-python inputs](https://github.com/actions/setup-python). These establish updater behavior; the per-package release links in the inventory establish version observations.
