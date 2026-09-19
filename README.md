@@ -18,7 +18,7 @@ Matching is deterministic over plain-language metadata; this release does not se
 
 ## Run locally
 
-Use Node.js 24, pnpm 10.34.5, Python 3.12, and `uv`. From the repository root:
+Use Node.js 24.15 or later within 24.x, the pnpm version pinned in `package.json`, Python 3.12, and `uv`. CI requests the latest available patch in each supported runtime line. From the repository root:
 
 ```sh
 corepack pnpm install --frozen-lockfile
@@ -55,6 +55,7 @@ Start the concierge with `corepack pnpm dev`. After a build, start the local rev
 - [Review desk](docs/review-desk.md) and [delivery operations](docs/delivery.md)
 - [Community and Project operations](docs/community.md), [contribution guidance](CONTRIBUTING.md), and [copyable example](docs/examples/meeting-notes.md)
 - [Brand voice](docs/brand-voice.md), [release verification](docs/release-verification.md), and [agent instructions](AGENTS.md)
+- [Technology inventory](docs/technology-inventory.md) and [dependency update policy](docs/technology-maintenance.md)
 
 Guided contribution interviews begin only after the trust process has been demonstrated with real submissions beyond the seed catalog. Enterprise deployment and billing are outside this release.
 

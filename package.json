@@ -6,10 +6,11 @@
   "license": "MIT",
   "packageManager": "pnpm@10.34.5",
   "engines": {
-    "node": ">=24 <25"
+    "node": ">=24.15 <25"
   },
   "scripts": {
     "test": "vitest run",
+    "technology:audit": "tsx scripts/technology-audit.ts",
     "typecheck": "tsc --noEmit",
     "scan": "tsx scripts/catalog.ts scan",
     "catalog": "tsx scripts/catalog.ts validate",
