@@ -1,7 +1,7 @@
 import { readFile, writeFile, rename, open, unlink } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { submissionSchema, findOverlaps } from '@askjamie/catalog-schema';
-import { decisionSchema, inspectPackage, recordDecision, fresh, findingSchema, SCANNER_VERSION, type Assessment, type Decision } from '@askjamie/trust-pipeline';
+import { decisionSchema, inspectPackage, recordDecision, fresh, findingSchema, parseAssessment, SCANNER_VERSION, type Assessment, type Decision } from '@askjamie/trust-pipeline';
 export type ReviewItem = Assessment & { content:string };
 export type ReviewState = { queue:ReviewItem[]; decisions:Decision[]; blocked:{id:string;reason:string}[] };
 export class ReviewService {
@@ -9,7 +9,9 @@ export class ReviewService {
   async state():Promise<ReviewState> {
     const submissions=JSON.parse(await readFile(resolve(this.root,'seed-catalog/catalog.json'),'utf8')).map((v:unknown)=>submissionSchema.parse(v));
     const decisions:Decision[]=JSON.parse(await readFile(resolve(this.root,'catalog/reviews.json'),'utf8')).map((v:unknown)=>decisionSchema.parse(v));
-    const assessments:Assessment[]=JSON.parse(await readFile(resolve(this.root,'.data/assessments.json'),'utf8'));
+    const rawAssessments:unknown=JSON.parse(await readFile(resolve(this.root,'.data/assessments.json'),'utf8'));
+    if(!Array.isArray(rawAssessments))throw new Error('Assessments must be an array. Run a fresh scan.');
+    const assessments=rawAssessments.map(parseAssessment);
     const queue:ReviewItem[]=[],blocked:ReviewState['blocked']=[];
     for(const entry of submissions) {
       try {
@@ -34,7 +36,8 @@ export class ReviewService {
       const current=await this.state();
       const item=current.queue.find(v=>v.submission.id===raw.id);
       if(!item)throw new Error('This submission is no longer ready for review. Reload the queue.');
-      const decision=recordDecision(item,{...raw,reviewerKind:'human',reviewedAt:new Date().toISOString()});
+      const {content: _content,...assessment}=item;
+      const decision=recordDecision(assessment,{...raw,reviewerKind:'human',reviewedAt:new Date().toISOString()});
       const path=resolve(this.root,'catalog/reviews.json');
       await writeFile(path+'.next',JSON.stringify([...current.decisions,decision],null,2)+'\n');
       await rename(path+'.next',path);

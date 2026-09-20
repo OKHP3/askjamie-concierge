@@ -31,6 +31,10 @@ jobs:
           SCAN_OUTCOME: ${{ steps.scan.outcome }}
       - if: steps.scan.outcome == 'failure'
         run: exit 1
+      - name: Validate code and publishing policy before re-audit publication
+        run: |
+          pnpm exec tsx scripts/check.ts validation-smoke
+          pnpm exec tsx scripts/check.ts publishing-trigger-check
       - run: pnpm exec tsx scripts/prepare-public.ts --reaudit
       - run: pnpm --filter @askjamie/concierge build
       - run: pnpm exec tsx scripts/stamp-build.ts

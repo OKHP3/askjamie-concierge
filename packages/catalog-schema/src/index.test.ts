@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { catalogEntrySchema, catalogSchema, findOverlaps, parseSubmission, submissionSchema } from './index';
+import { catalogEntrySchema, catalogSchema, findOverlaps, parseSubmission, submissionSchema, normalize, similarity } from './index';
 const good = { id: 'expense-report', displayName: 'Expense report', plainDescription: 'Organizes supplied receipts into a clear expense report.', triggerHints: ['format my expenses'], compatiblePlatforms: ['claude'], sourcePackageRef: 'seed-catalog/expense-report/SKILL.md', contributedBy: null, version: '1.0.0' };
 describe('catalog ingest', () => {
   it('accepts clean metadata separately from trust', () => expect(parseSubmission(good)).toEqual(good));
@@ -7,6 +7,18 @@ describe('catalog ingest', () => {
     expect(submissionSchema.safeParse({ ...good, plainDescription }).success).toBe(false);
   });
   it('rejects contributor-assigned trust', () => expect(() => parseSubmission({ ...good, trustStatus: 'verified' })).toThrow());
+  it.each(['**Quarterly report**', '*Quarterly report*', '_Quarterly report_', '[Quarterly report](url)', '`Quarterly report`', '# Quarterly report', '- Quarterly report', 'Quarterly\u2028report', 'Quarterly\u2029report', 'Quarterly\u007freport', 'Quarterly\u0085report', 'Quarterly\treport', 'Quarterly report\n'])('rejects markup and every line/control form %s', plainDescription => {
+    expect(submissionSchema.safeParse({ ...good, plainDescription }).success).toBe(false);
+  });
+  it('preserves Unicode scripts and normalizes canonically equivalent letters', () => {
+    expect(normalize('Prépare résumé')).toBe('prepare resume');
+    expect(similarity('prepare résumé', 'prepare resume')).toBe(1);
+    expect(similarity('prepare re\u0301sume\u0301', 'prepare résumé')).toBe(1);
+    expect(normalize('日本語の資料')).toBe('日本語の資料');
+    expect(similarity('日本語の資料', '中文工作报告')).toBe(0);
+    expect(similarity('!!!', '???')).toBe(0);
+    expect(() => parseSubmission({ ...good, id:'resume-draft', sourcePackageRef:'seed-catalog/resume-draft/SKILL.md', triggerHints:['prepare résumé'] }, [parseSubmission({ ...good, triggerHints:['prepare resume'] })])).toThrow(/overlap/);
+  });
   it('requires distinct nonempty hints', () => {
     for (const triggerHints of [[], ['same hint', 'same hint']]) expect(submissionSchema.safeParse({ ...good, triggerHints }).success).toBe(false);
   });

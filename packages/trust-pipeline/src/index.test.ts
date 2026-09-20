@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { publish, publishReaudit, recordDecision, fresh, type Assessment } from './index';
+import { publish, publishReaudit, recordDecision, fresh, parseAssessment, type Assessment } from './index';
 import { parseScannerReport } from './scanner';
 const now = new Date().toISOString();
 const assessment: Assessment = {
@@ -27,7 +27,7 @@ describe('trust boundaries', () => {
   });
   it('records a reasoned rejection', () => expect(publish(assessment, { ...decision, decision:'rejected' }).trustStatus).toBe('rejected'));
   it('rechecks evidence and judgment instead of trusting a saved pass flag', () => {
-    expect(publish({...assessment,evidence:{...assessment.evidence,findings:[{ruleId:'test',severity:'HIGH',title:'Unsafe instructions'}]}},decision).trustStatus).toBe('flagged');
+    expect(publish({...assessment,mechanicalPassed:false,evidence:{...assessment.evidence,findings:[{ruleId:'test',severity:'HIGH',title:'Unsafe instructions'}]}},decision).trustStatus).toBe('flagged');
     expect(() => publish({...assessment,evidence:{...assessment.evidence,version:'unknown'}},decision)).toThrow(/identity/);
     expect(() => publish(assessment,{...decision,reviewedAt:new Date(Date.now()+3600_000).toISOString()})).toThrow(/future/);
   });
@@ -35,6 +35,25 @@ describe('trust boundaries', () => {
     const report = { skill_name:'meeting-notes', timestamp:now, findings_count:0, findings:[], analyzers_used:['static_analyzer'] };
     expect(parseScannerReport(report).findings).toEqual([]);
     for (const change of [{ analyzers_used:[] }, { analyzers_used:['llm'] }, { analyzers_failed:[{ error:'failed' }] }, { findings_count:1 }, { findings:[{ severity:'unknown' }] }]) expect(() => parseScannerReport({ ...report, ...change })).toThrow();
+  });
+  it.each([
+    {mechanicalPassed:'false'}, {mechanicalPassed:null}, {digest:'invalid'}, {overlaps:null},
+    {evidence:{...assessment.evidence, findings:null}},
+    {evidence:{...assessment.evidence, checkedAt:42}},
+    {evidence:{...assessment.evidence, findings:[{ruleId:'test',severity:'UNKNOWN',title:'Unknown'}]}},
+    {overlaps:[{id:'other',kind:'unknown',similarity:0.9}]},
+    {overlaps:[{id:'other',kind:'trigger',similarity:2}]},
+    {unexpected:true},
+  ])('rejects malformed persisted assessment at every trust boundary: %j', change => {
+    const malformed = {...assessment,...change} as unknown as Assessment;
+    expect(() => parseAssessment(malformed)).toThrow();
+    expect(() => publish(malformed,decision)).toThrow();
+    expect(() => publishReaudit(malformed,decision)).toThrow();
+    expect(() => recordDecision(malformed,decision)).toThrow();
+  });
+  it('rejects cached pass flags inconsistent with findings', () => {
+    expect(() => parseAssessment({...assessment,mechanicalPassed:false})).toThrow(/conflicts/);
+    expect(() => publish({...assessment,evidence:{...assessment.evidence,findings:[{ruleId:'test',severity:'HIGH',title:'Unsafe'}]}},decision)).toThrow(/conflicts/);
   });
   it('rejects future and invalid timestamps', () => {
     expect(fresh('unknown')).toBe(false);

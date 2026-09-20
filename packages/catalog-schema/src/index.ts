@@ -6,10 +6,12 @@ export const platformNames: Record<Platform, string> = { claude: 'Claude Code', 
 
 export function isCleanProse(value: string): boolean {
   return value.trim().length >= 10
+    && !/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/u.test(value)
+    && !/[*_`~]|!?\[[^\]]*\]\s*(?:\([^)]*\)|\[[^\]]*\])|^\s*(?:#{1,6}\s|[-+]\s|\d+[.)]\s)/u.test(value)
     && !/(^|\s)[>|][+-]?(?=\s|$)|^\s*---|\bdescription\s*:|[\u0000-\u0008\u000b\u000c\u000e-\u001f]/m.test(value)
     && !/[\n\r]|<[^>]*>|\`\`\`/.test(value);
 }
-const prose = z.string().trim().min(10).max(600).refine(isCleanProse, 'Use clean, single-line prose without YAML indicators or markup.');
+const prose = z.string().refine(isCleanProse, 'Use clean, single-line prose without YAML indicators or markup.').trim().min(10).max(600);
 const id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(64);
 const hint = z.string().trim().min(5).max(180);
 export const submissionSchema = z.object({
@@ -26,6 +28,7 @@ export type Submission = z.infer<typeof submissionSchema>;
 export const catalogEntrySchema = submissionSchema.safeExtend({
   trustStatus: z.enum(['verified', 'pending-review', 'flagged', 'rejected']),
   trustLastCheckedAt: z.iso.datetime(),
+  packageSha256: z.string().regex(/^[a-f0-9]{64}$/).optional(),
 });
 export type CatalogEntry = z.infer<typeof catalogEntrySchema>;
 export const catalogSchema = z.array(catalogEntrySchema).superRefine((items, ctx) => {
@@ -33,7 +36,7 @@ export const catalogSchema = z.array(catalogEntrySchema).superRefine((items, ctx
 });
 
 export function normalize(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+  return value.normalize('NFKD').toLowerCase().replace(/\p{M}/gu, '').replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
 }
 const stop = new Set('a an the to of and or my me i this that help please with for into from make create use'.split(' '));
 export function words(value: string): Set<string> {
@@ -41,7 +44,7 @@ export function words(value: string): Set<string> {
 }
 export function similarity(a: string, b: string): number {
   const left = words(a), right = words(b);
-  if (!left.size || !right.size) return normalize(a) === normalize(b) ? 1 : 0;
+  if (!left.size || !right.size) return normalize(a).length > 0 && normalize(a) === normalize(b) ? 1 : 0;
   const common = [...left].filter(v => right.has(v)).length;
   return common / new Set([...left, ...right]).size;
 }

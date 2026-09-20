@@ -28,11 +28,26 @@ it.each(['approved','rejected'])('persists a reasoned %s decision and removes th
   await expect(service.decide(request())).rejects.toThrow(/no longer/);
 });
 it('hides failed checks and rejects attempts to approve them',async()=>{
+  assessment.mechanicalPassed=false;
   assessment.evidence.findings=[{ruleId:'test',severity:'HIGH',title:'Unsafe content'}];
   await writeFile(join(root,'.data/assessments.json'),JSON.stringify([assessment]));
   expect((await service.state()).queue).toHaveLength(0);
   expect((await service.state()).blocked).toHaveLength(1);
   await expect(service.decide(request())).rejects.toThrow();
+});
+it.each([
+  {mechanicalPassed:'false'},
+  {evidence:{scanner:'cisco-ai-skill-scanner',version:'2.1.0',checkedAt:new Date().toISOString(),findings:null}},
+  {overlaps:'none'},
+])('fails closed on malformed persisted evidence: %j',async change=>{
+  await writeFile(join(root,'.data/assessments.json'),JSON.stringify([{...assessment,...change}]));
+  await expect(service.state()).rejects.toThrow();
+  await expect(service.decide(request())).rejects.toThrow();
+  expect(JSON.parse(await readFile(join(root,'catalog/reviews.json'),'utf8'))).toEqual([]);
+});
+it('rejects a non-array assessment file before exposing a review queue',async()=>{
+  await writeFile(join(root,'.data/assessments.json'),JSON.stringify(assessment));
+  await expect(service.state()).rejects.toThrow(/array/);
 });
 it('refuses stale scans, changed packages, and injected trust fields',async()=>{
   await expect(service.decide({...request(),trustStatus:'verified'})).rejects.toThrow();
