@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 import React from 'react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import seeds from '../../../seed-catalog/catalog.json';
 import { App } from './App';
 import { ApplicationGuide } from './ApplicationGuide';
 import { catalogEntrySchema } from '@askjamie/catalog-schema';
-afterEach(()=>{cleanup();vi.useRealTimers();vi.unstubAllGlobals();localStorage.clear();});
+afterEach(()=>{cleanup();vi.useRealTimers();vi.restoreAllMocks();vi.unstubAllGlobals();localStorage.clear();});
 beforeEach(()=>{vi.stubGlobal('fetch',vi.fn(async()=>Response.json(seeds.map(v=>({...v,packageSha256:'a'.repeat(64),trustStatus:'verified',trustLastCheckedAt:new Date().toISOString()})))));});
 it('guides a goal through platform choice, match, installation and recorded feedback',async()=>{
   const user=userEvent.setup();render(<App/>);
@@ -20,7 +20,8 @@ it('guides a goal through platform choice, match, installation and recorded feed
   expect(screen.getByRole('heading',{name:'I found a good fit.'})).toBeTruthy();
   await user.click(screen.getByRole('button',{name:'Show me how to use it'}));
   expect(screen.getByText(/.github\/skills\/meeting-notes\/SKILL.md/,{selector:'pre'})).toBeTruthy();
-  expect(screen.getByRole('link',{name:'Download skill'}).getAttribute('href')).toContain('skills/meeting-notes/'+'a'.repeat(64)+'/SKILL.md');
+  expect(screen.getByRole('button',{name:'Download skill'})).toBeTruthy();
+  expect(screen.queryByRole('link',{name:'Download skill'})).toBeNull();
   expect(document.activeElement).toBe(screen.getByRole('heading',{name:seeds[0].displayName}));
   await user.click(screen.getByRole('button',{name:'I’ve tried it'}));
   await user.click(screen.getByRole('button',{name:'Yes, it helped'}));
@@ -50,10 +51,59 @@ it.each(['Download skill','Copy setup request','Copy first-task prompt'])('block
   const entry=catalogEntrySchema.parse({...seeds[0],packageSha256:'a'.repeat(64),trustStatus:'verified',trustLastCheckedAt:checkedAt});
   render(<ApplicationGuide entry={entry} platform="claude" onBack={()=>{}}/>);
   vi.setSystemTime(Date.parse(checkedAt)+8*86400_000+1);
-  const target=screen.getByRole(control==='Download skill'?'link':'button',{name:control});
-  if(control==='Download skill')expect(fireEvent.click(target)).toBe(false);
-  else fireEvent.click(target);
+  const target=screen.getByRole('button',{name:control});
+  fireEvent.contextMenu(target);
+  expect(document.querySelector('a[download]')).toBeNull();
+  fireEvent.click(target);
   expect(screen.getByRole('alert').textContent).toContain('fresh review');
   expect(clipboard.writeText).not.toHaveBeenCalled();
+  expect(fetch).not.toHaveBeenCalled();
   expect(screen.queryByRole('link',{name:'Download skill'})).toBeNull();
+});
+it('fetches a content-bound file only after the download action and leaves no copyable download link',async()=>{
+  const request=vi.fn(async()=>new Response('reviewed instructions'));
+  vi.stubGlobal('fetch',request);
+  const createObjectURL=vi.fn(()=> 'blob:reviewed-skill');
+  const revokeObjectURL=vi.fn();
+  vi.stubGlobal('URL',class extends URL { static createObjectURL=createObjectURL; static revokeObjectURL=revokeObjectURL; });
+  const save=vi.spyOn(HTMLAnchorElement.prototype,'click').mockImplementation(()=>{});
+  const entry=catalogEntrySchema.parse({...seeds[0],packageSha256:'a'.repeat(64),trustStatus:'verified',trustLastCheckedAt:new Date().toISOString()});
+  render(<ApplicationGuide entry={entry} platform="claude" onBack={()=>{}}/>);
+  fireEvent.contextMenu(screen.getByRole('button',{name:'Download skill'}));
+  expect(request).not.toHaveBeenCalled();
+  expect(document.querySelector('a[download]')).toBeNull();
+  fireEvent.click(screen.getByRole('button',{name:'Download skill'}));
+  await waitFor(()=>expect(save).toHaveBeenCalledOnce());
+  expect(request).toHaveBeenCalledWith(expect.stringContaining('skills/meeting-notes/'+'a'.repeat(64)+'/SKILL.md'),{cache:'no-store'});
+  expect(createObjectURL).toHaveBeenCalledOnce();
+  expect(document.querySelector('a[download]')).toBeNull();
+  await waitFor(()=>expect(revokeObjectURL).toHaveBeenCalledWith('blob:reviewed-skill'));
+});
+it('does not save a download when the review expires while its response body is loading',async()=>{
+  vi.useFakeTimers();
+  const checkedAt=new Date().toISOString();
+  let finishBody!:(value:Blob)=>void;
+  const body=new Promise<Blob>(resolve=>{finishBody=resolve;});
+  const request=vi.fn(async()=>({ok:true,blob:()=>body}));
+  vi.stubGlobal('fetch',request);
+  const save=vi.spyOn(HTMLAnchorElement.prototype,'click').mockImplementation(()=>{});
+  const entry=catalogEntrySchema.parse({...seeds[0],packageSha256:'a'.repeat(64),trustStatus:'verified',trustLastCheckedAt:checkedAt});
+  render(<ApplicationGuide entry={entry} platform="claude" onBack={()=>{}}/>);
+  fireEvent.click(screen.getByRole('button',{name:'Download skill'}));
+  expect(request).toHaveBeenCalledOnce();
+  expect(screen.getByRole('button',{name:'Preparing download…'}).hasAttribute('disabled')).toBe(true);
+  await act(async()=>{vi.setSystemTime(Date.parse(checkedAt)+8*86400_000+1);finishBody(new Blob(['reviewed instructions']));});
+  expect(save).not.toHaveBeenCalled();
+  expect(screen.getByRole('alert').textContent).toContain('fresh review');
+  expect(document.querySelector('a[download]')).toBeNull();
+});
+it('reports failed download responses without saving a file and permits retry',async()=>{
+  vi.stubGlobal('fetch',vi.fn(async()=>new Response('',{status:503})));
+  const save=vi.spyOn(HTMLAnchorElement.prototype,'click').mockImplementation(()=>{});
+  const entry=catalogEntrySchema.parse({...seeds[0],packageSha256:'a'.repeat(64),trustStatus:'verified',trustLastCheckedAt:new Date().toISOString()});
+  render(<ApplicationGuide entry={entry} platform="claude" onBack={()=>{}}/>);
+  fireEvent.click(screen.getByRole('button',{name:'Download skill'}));
+  expect((await screen.findByRole('alert')).textContent).toContain('could not be downloaded');
+  expect(save).not.toHaveBeenCalled();
+  expect(screen.getByRole('button',{name:'Download skill'}).hasAttribute('disabled')).toBe(false);
 });

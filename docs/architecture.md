@@ -18,6 +18,12 @@ The concierge guides a person from a task description to a reviewed skill and pr
 
 GitHub Pages cannot run a backend. The public app consumes a build-time, validated snapshot through a browser-safe adapter of the shared service. The review desk uses the same service over a loopback-only HTTP API. A centrally hosted API and enterprise identity integration require a later deployment decision.
 
+Skill downloads use content-addressed public paths. The guide exposes a download
+button rather than a persistent file link, checks review freshness before fetching,
+and checks again after the response body arrives before saving it. Public Pages
+URLs remain public: client-side checks cannot revoke a previously copied address
+or an already downloaded file.
+
 Feedback is recorded only in the user's browser in this release, with an explicit notice and a clear-history control. It is not presented as centrally collected analytics.
 
 ## Evidence and download boundaries

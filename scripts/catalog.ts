@@ -1,9 +1,10 @@
-import { mkdir, readFile, writeFile, open, rm, rename } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, rm, rename } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { submissionSchema, catalogSchema, findOverlaps, type Submission } from '../packages/catalog-schema/src/index';
 import { assess, decisionSchema, inspectPackage, publish, publishReaudit, fresh, parseAssessment, type Assessment, type Scanner } from '../packages/trust-pipeline/src/index';
 import { ciscoScanner } from '../packages/trust-pipeline/src/scanner';
+import { acquireScanLock } from './scan-lock';
 
 export const root = process.cwd();
 export async function loadSubmissions(workspaceRoot = root): Promise<Submission[]> {
@@ -19,9 +20,7 @@ export async function loadSubmissions(workspaceRoot = root): Promise<Submission[
 }
 export async function scanCatalog(workspaceRoot = root, scan: Scanner = ciscoScanner(workspaceRoot)): Promise<Assessment[]> {
   const evidence = resolve(workspaceRoot, '.data/assessments.json');
-  const lockPath = resolve(workspaceRoot, '.data/scan.lock');
-  await mkdir(resolve(workspaceRoot, '.data'), { recursive: true });
-  const lock = await open(lockPath, 'wx');
+  const release = await acquireScanLock(workspaceRoot);
   try {
     // Invalidate the previous successful run before even validating the new inputs.
     await rm(evidence, { force: true });
@@ -36,9 +35,8 @@ export async function scanCatalog(workspaceRoot = root, scan: Scanner = ciscoSca
     await rename(evidence + '.next', evidence);
     return assessments;
   } finally {
-    await rm(evidence + '.next', { force: true });
-    await lock.close();
-    await rm(lockPath);
+    try {await rm(evidence + '.next', { force: true });}
+    finally {await release();}
   }
 }
 export async function buildCatalog(reaudit = false) {

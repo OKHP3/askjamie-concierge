@@ -28,6 +28,8 @@ A weekly successful audit republishes fresh evidence even when the package did n
 
 ## Operator commands
 
+Scans use an operating-system-owned loopback socket as a workspace mutex. The port is derived from the canonical repository path; the listener immediately closes incoming connections and accepts no commands. Process termination releases ownership automatically. `.data/scan.lock` records the owner for diagnostics only and is replaced or removed only while holding the mutex, so an interrupted scan's leftover file does not block recovery. An occupied port fails closed before changing evidence or metadata, including a collision with an unrelated local service; the reported port must be made available before retrying.
+
 - `pnpm scan`: run all real security checks.
 - `pnpm validate`: run type checks, tests, catalog integrity and publishing policy.
 - `pnpm build`: use current scan evidence to build both applications and stamp public files.
