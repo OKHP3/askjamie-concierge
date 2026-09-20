@@ -2,7 +2,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { loadSubmissions } from './catalog';
-import { decisionSchema, inspectPackage, findingSchema, fresh } from '../packages/trust-pipeline/src/index';
+import { decisionSchema, inspectPackage, parseAssessment, fresh } from '../packages/trust-pipeline/src/index';
 import { findOverlaps } from '../packages/catalog-schema/src/index';
 import { validatePublishing } from './publishing-policy';
 const mode=process.argv[2];
@@ -15,12 +15,14 @@ else if(mode==='catalog-integrity') {
     if(!reviews.some((v:{id:string;digest:string})=>v.id===entry.id && v.digest===pkg.digest))throw new Error('A current judgment record is required for '+entry.id);
   }
 } else if(mode==='security-admission') {
-  const assessments=JSON.parse(await readFile('.data/assessments.json','utf8'));
+  const rawAssessments:unknown=JSON.parse(await readFile('.data/assessments.json','utf8'));
+  if(!Array.isArray(rawAssessments))throw new Error('Assessments must be an array. Run a fresh scan.');
+  const assessments=rawAssessments.map(parseAssessment);
   const entries=await loadSubmissions();
   for(const entry of entries) {
-    const assessment=assessments.find((v:any)=>v.submission.id===entry.id);
+    const assessment=assessments.find(v=>v.submission.id===entry.id);
     const pkg=await inspectPackage(process.cwd(),entry);
-    if(!assessment || assessment.digest!==pkg.digest || !assessment.mechanicalPassed || !fresh(assessment.evidence.checkedAt) || assessment.evidence.findings.map((v:unknown)=>findingSchema.parse(v)).some((v:{severity:string})=>['MEDIUM','HIGH','CRITICAL'].includes(v.severity)))throw new Error('Security admission failed for '+entry.id);
+    if(!assessment || assessment.digest!==pkg.digest || !assessment.mechanicalPassed || !fresh(assessment.evidence.checkedAt))throw new Error('Security admission failed for '+entry.id);
   }
 } else if(mode==='structural-validation')await loadSubmissions();
 else if(mode==='deduplication-check') {

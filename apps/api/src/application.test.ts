@@ -2,11 +2,13 @@ import { it, expect } from 'vitest';
 import seeds from '../../../seed-catalog/catalog.json';
 import { catalogEntrySchema } from '@askjamie/catalog-schema';
 import { applicationGuide, saveFeedback, clearFeedback, FEEDBACK_KEY } from './application';
-const entry=catalogEntrySchema.parse({...seeds[0],trustStatus:'verified',trustLastCheckedAt:new Date().toISOString()});
+const entry=catalogEntrySchema.parse({...seeds[0],packageSha256:'a'.repeat(64),trustStatus:'verified',trustLastCheckedAt:new Date().toISOString()});
 it('wires the same skill to each supported platform and blocks expired guidance',()=>{
   expect(applicationGuide(entry,'claude').path).toBe('.claude/skills/meeting-notes/SKILL.md');
   expect(applicationGuide(entry,'copilot').path).toBe('.github/skills/meeting-notes/SKILL.md');
   expect(()=>applicationGuide({...entry,trustStatus:'flagged'},'claude')).toThrow();
+  expect(applicationGuide(entry,'claude').downloadPath).toBe('skills/meeting-notes/'+'a'.repeat(64)+'/SKILL.md');
+  expect(()=>applicationGuide({...entry,packageSha256:undefined},'claude')).toThrow(/content-bound/);
 });
 it('persists only bounded outcome metadata and permits clearing it',()=>{
   const data=new Map<string,string>();

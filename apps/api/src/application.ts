@@ -3,10 +3,12 @@ import { eligible } from './discovery';
 export function applicationGuide(raw: CatalogEntry, platform: Platform) {
   const entry = catalogEntrySchema.parse(raw);
   if (!eligible(entry,platform)) throw new Error('This skill needs a current review before it can be used.');
+  if (!entry.packageSha256) throw new Error('This skill needs a content-bound download before it can be used.');
   const folder = platform === 'claude' ? '.claude/skills/' : '.github/skills/';
   const path = folder + entry.id + '/SKILL.md';
   return {
     path,
+    downloadPath: 'skills/' + entry.id + '/' + entry.packageSha256 + '/SKILL.md',
     request: 'Please add the attached skill to this project as ' + path + '. Keep the file contents unchanged. Then explain when you would use it, and wait for me to provide the task material.',
     tryPrompt: 'Use the ' + entry.displayName + ' skill on the material I provide. Ask for anything missing, then prepare a result for me to review.',
     platformName:platformNames[platform],
