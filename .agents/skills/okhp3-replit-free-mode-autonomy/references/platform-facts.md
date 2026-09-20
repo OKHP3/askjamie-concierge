@@ -1,6 +1,6 @@
 # Replit Platform Facts
 
-These are the host-specific facts used by `okhp3-replit-free-mode-autonomy`.
+These are the host-specific facts used by `askjamie-replit-free-mode-autonomy`.
 They were checked against Replit documentation on 2026-09-02 and should be
 rechecked if the platform UI or routine behavior changes.
 

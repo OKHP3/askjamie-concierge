@@ -1,5 +1,5 @@
 ---
-name: okhp3-replit-task-executor
+name: askjamie-replit-task-executor
 description: >
   Execute Replit-planned tasks with an external coding agent while Replit
   remains project manager and designer. Use for task handoff, architecture,
@@ -8,20 +8,22 @@ description: >
   coding to Replit, cancel cards by default, or invent board-completion APIs.
 license: MIT
 metadata:
-  author: Jamie Hill (OverKill Hill P³)
+  maintainer: AskJamie Concierge contributors
   version: "1.2.0"
   category: developer-tooling
-  origin: okhp3/skillz
-  homepage: https://overkillhill.com
-  author-github: https://github.com/OKHP3
   maturity: draftable
   in_scope: "Replit planning and design handoff, external architecture and implementation, protected integration, and bounded acceptance return."
   out_of_scope: "Replit coding dispatch, unbounded backlog growth, unapproved usage or cancellation, hidden APIs, unrelated cleanup, or permission bypass."
 ---
 
-# okhp3-replit-task-executor
+# askjamie-replit-task-executor
 
-**OverKill Hill P³** · [overkillhill.com](https://overkillhill.com) · [github.com/OKHP3](https://github.com/OKHP3)
+AskJamie Concierge development tooling. See the repository's
+[attribution and historical evidence boundary](../../../docs/licenses/replit-skills-provenance.md).
+
+Imported evaluation and benchmark records are historical upstream evidence,
+not validation of this adapted package. Derive repository coordinates from
+the current Git remote; never copy coordinates from historical records.
 
 Turn one selected Replit plan into a verified repository change using the
 external agent's own tools. Replit retains project management, planning, design,
@@ -292,9 +294,7 @@ draftable. The earlier live exercise recovered source and preserved plans but
 did not complete the external-to-native board cycle. This version has no measured
 cost improvement, fresh live end-to-end pilot, or cross-host production benchmark.
 
-## About
+## Attribution
 
-Built by [Jamie Hill](https://overkillhill.com) · [OverKill Hill P³](https://overkillhill.com)
-Published at [github.com/OKHP3](https://github.com/OKHP3)
-Part of the [OKHP3/skillz](https://github.com/OKHP3/skillz) Agent Skill library.
-MIT License -- free to use, fork, and adapt. A nod to the source is appreciated.
+Adapted for AskJamie Concierge. Original authorship and MIT license are retained
+in [the provenance notice](../../../docs/licenses/replit-skills-provenance.md).

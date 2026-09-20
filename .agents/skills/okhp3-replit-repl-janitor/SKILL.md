@@ -1,24 +1,20 @@
 ---
-name: okhp3-replit-repl-janitor
+name: askjamie-replit-repl-janitor
 description: >
-  OverKill Hill P³ one-Repl repository cleanup workflow for safely auditing and
+  AskJamie one-Repl repository cleanup workflow for safely auditing and
   tidying a single Replit workspace's Git checkout. Use when a user asks to
   clean up merged or abandoned branches and pull requests, purge stale
   subrepl-* or agent/* branches, normalize file and folder names, or remove
   repository detritus. Also activate for "decrapify this Repl", "tidy this
   repo", "prune dead branches", or "fix inconsistent filenames". This is the
-  authoritative one-time cleanup workflow for one Replit checkout; use
-  okhp3-repository-janitor for recurring maintenance and multiple local clones,
-  and okhp3-repository-organizer for structural
-  reorganization.
+  one-time cleanup workflow for one Replit checkout. Recurring maintenance,
+  multi-clone reconciliation, and structural reorganization need separately
+  scoped work.
 license: MIT
 metadata:
-  author: Jamie Hill (OverKill Hill P³)
+  maintainer: AskJamie Concierge contributors
   version: "1.0.1"
   category: developer-tooling
-  origin: okhp3/skillz
-  homepage: https://overkillhill.com
-  author-github: https://github.com/OKHP3
   in_scope:
     - Auditing one Replit checkout's local branches against a verified base ref
     - Resolving pull-request state before classifying branches for keep, merge, delete, or review
@@ -34,9 +30,14 @@ metadata:
     - Rewriting main or deleting stashes, archive refs, or unreviewed work
 ---
 
-# okhp3-replit-repl-janitor
+# askjamie-replit-repl-janitor
 
-**OverKill Hill P³** · [overkillhill.com](https://overkillhill.com) · [github.com/OKHP3](https://github.com/OKHP3)
+AskJamie Concierge development tooling. See the repository's
+[attribution and historical evidence boundary](../../../docs/licenses/replit-skills-provenance.md).
+
+Imported evaluation and benchmark records are historical upstream evidence,
+not validation of this adapted package. Derive repository coordinates from
+the current Git remote; never copy coordinates from historical records.
 
 Safely clean one Replit workspace's Git checkout without confusing generated
 branch names with proof, a closed pull request with a merged one, or an untidy
@@ -49,9 +50,9 @@ evidence-led, and destructive only after the owner approves exact line items.
 
 | In scope | Out of scope |
 |---|---|
-| One-time cleanup of one Replit checkout | Recurring maintenance; use `okhp3-repository-janitor` |
-| Branch and PR classification against a verified base | Multi-clone reconciliation; use `okhp3-repository-janitor` |
-| Naming and detritus audit | Structural redesign; use `okhp3-repository-organizer` |
+| One-time cleanup of one Replit checkout | Recurring maintenance |
+| Branch and PR classification against a verified base | Multi-clone reconciliation |
+| Naming and detritus audit | Structural redesign |
 | Exact, owner-approved cleanup execution | Autonomous deletion, merging, renaming, or publishing |
 
 ---
@@ -103,7 +104,7 @@ destroys evidence about stale remote branches.
 Run the deterministic local audit:
 
 ```bash
-python3 .agents/skills/okhp3-replit-repl-janitor/scripts/audit-repo.py \
+python3 .agents/skills/askjamie-replit-repl-janitor/scripts/audit-repo.py \
   --root . \
   --base origin/main
 ```
@@ -186,20 +187,24 @@ Before each branch operation, run the bundled pre-delete check with the exact
 branch and SHA recorded in the approved plan:
 
 ```bash
-python3 .agents/skills/okhp3-replit-repl-janitor/scripts/audit-repo.py \
+python3 .agents/skills/askjamie-replit-repl-janitor/scripts/audit-repo.py \
   --root . \
   --check-delete \
   --branch '<branch>' \
   --reviewed-head '<reviewed SHA>'
 ```
 
-The JSON result records both `reviewed_head` and the freshly read
-`current_head`. If the bucket is `review`, stop, record the hold, and run no
+The JSON result records `reviewed_head`, the freshly read local `current_head`,
+and the live `remote_head`. A missing remote branch or network error blocks
+deletion. If the bucket is `review`, stop, record the hold, and run no
 deletion command. Only a `delete` result may be executed, and its
-`deletion_commands` must be run in the emitted order. The sequence is
-remote-first (`git push origin --delete <branch>`) and local second
-(`git branch -d <branch>`). The check is read-only and never executes either
-command.
+`deletion_commands` must be run in the emitted order, stopping on any failure.
+The remote-first command uses
+`git push --force-with-lease=refs/heads/<branch>:<reviewed SHA> origin :refs/heads/<branch>`;
+local deletion uses `git branch -d <branch>` only after remote deletion succeeds.
+The explicit lease is a conditional deletion guard: it refuses a remote tip
+that changed after review and does not rewrite branch history. The check is
+read-only and never executes either command.
 
 For an approved merge:
 
@@ -218,7 +223,7 @@ For approved files, use `git rm` and `git mv` so the change is explicit. Plain
 After every approved batch:
 
 ```bash
-python3 .agents/skills/okhp3-replit-repl-janitor/scripts/audit-repo.py \
+python3 .agents/skills/askjamie-replit-repl-janitor/scripts/audit-repo.py \
   --root . \
   --base origin/main
 git status --short
@@ -265,18 +270,16 @@ Return:
   branches, naming violations, and nested detritus.
 - `references/naming-conventions.md` — portable kebab-case policy and structural
   exceptions.
-- `references/foundry-architecture.md` — Phase 1 intent, scope, and brand
+- `references/skill-architecture.md` — intent, scope, and brand
   decision for this renamed skill.
 - `evals/evals.json` — three live-evaluation prompts with four anchored
   expectations each.
-- `benchmarks/benchmark.json` — version-matched Foundry evidence after live
-  execution.
+- `benchmarks/benchmark.json` — historical upstream execution evidence;
+  it does not validate this adapted package.
 
 ---
 
-## About
+## Attribution
 
-Built by [Jamie Hill](https://overkillhill.com) · [OverKill Hill P³](https://overkillhill.com)
-Published at [github.com/OKHP3](https://github.com/OKHP3)
-Part of the [OKHP3/skillz](https://github.com/OKHP3/skillz) Agent Skill library.
-MIT License -- free to use, fork, and adapt. A nod to the source is appreciated.
+Adapted for AskJamie Concierge. Original authorship and MIT license are retained
+in [the provenance notice](../../../docs/licenses/replit-skills-provenance.md).

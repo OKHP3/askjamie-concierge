@@ -1,6 +1,6 @@
 ---
 name: naming-conventions
-description: Portable kebab-case naming default and structural exceptions for okhp3-replit-repl-janitor.
+description: Portable kebab-case naming default and structural exceptions for askjamie-replit-repl-janitor.
 ---
 
 # Naming conventions

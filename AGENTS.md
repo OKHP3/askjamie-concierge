@@ -2,6 +2,7 @@
 
 - Read `docs/architecture.md` and `docs/brand-voice.md` before making changes.
 - Use only the AskJamie identity. Do not import unrelated project content, personal branding, historical names, or internal codenames. Use portable relative paths and derive repository coordinates from the runtime environment.
+- Adapt approved third-party development tools to AskJamie guidance. Preserve required upstream attribution in license notices and clearly label retained upstream evaluation records as historical evidence, never current validation. These records are not runtime instructions or public catalog entries.
 - Keep the product conversational. Recommend a strong match or a ranked shortlist, after asking which supported agent the person uses.
 - Catalog metadata is separate from skill frontmatter. Contributions cannot assign trust status. Never publish without current mechanical evidence and a content-bound judgment decision.
 - Scanner failure, missing evidence, malformed prose, stale approval, and unknown status fail closed. Review actions must be covered by tests from their first implementation.

@@ -1,5 +1,5 @@
 ---
-name: okhp3-replit-free-mode-autonomy
+name: askjamie-replit-free-mode-autonomy
 description: >
   Keep Replit project work autonomous and Free Mode-first with bounded execution,
   checkpointed quota recovery, and quiet upgrade handling. Use when the user asks
@@ -12,20 +12,22 @@ compatibility: >
   Any Agent Skills-compatible client with filesystem access. Replit Routines are
   optional host support for scheduled retry opportunities and are conversation-bound.
 metadata:
-  author: Jamie Hill (OverKill Hill P³)
+  maintainer: AskJamie Concierge contributors
   version: "1.1.0"
   category: developer-tooling
-  origin: okhp3/skillz
-  homepage: https://overkillhill.com
-  author-github: https://github.com/OKHP3
   maturity: draftable
   in_scope: "Free Mode-first execution, interruption checkpoints, safe quota retry opportunities, and concise status reporting."
   out_of_scope: "Changing quotas, hiding platform UI, auto-accepting approvals, paid escalation, or unattended cross-project scheduling."
 ---
 
-# okhp3-replit-free-mode-autonomy
+# askjamie-replit-free-mode-autonomy
 
-**OverKill Hill P³** · [overkillhill.com](https://overkillhill.com) · [github.com/OKHP3](https://github.com/OKHP3)
+AskJamie Concierge development tooling. See the repository's
+[attribution and historical evidence boundary](../../../docs/licenses/replit-skills-provenance.md).
+
+Imported evaluation and benchmark records are historical upstream evidence,
+not validation of this adapted package. Derive repository coordinates from
+the current Git remote; never copy coordinates from historical records.
 
 Use this skill when the user wants to get as much useful, recoverable work as
 possible from Replit Free Mode without repeated upgrade suggestions or
@@ -125,7 +127,7 @@ This package is designed for distribution from the Replit family. To activate
 it in another project, copy the package directory into:
 
 ```text
-.agents/skills/okhp3-replit-free-mode-autonomy/
+.agents/skills/askjamie-replit-free-mode-autonomy/
 ```
 
 If the target project does not load local skills, use the prompt in
@@ -167,9 +169,7 @@ skill. When a host behavior changes, update the reference and the affected
 instructions together; do not weaken the approval boundary to preserve an old
 workflow.
 
-## About
+## Attribution
 
-Built by [Jamie Hill](https://overkillhill.com) · [OverKill Hill P³](https://overkillhill.com)
-Published at [github.com/OKHP3](https://github.com/OKHP3)
-Part of the [OKHP3/skillz](https://github.com/OKHP3/skillz) Agent Skill library.
-MIT License -- free to use, fork, and adapt. A nod to the source is appreciated.
+Adapted for AskJamie Concierge. Original authorship and MIT license are retained
+in [the provenance notice](../../../docs/licenses/replit-skills-provenance.md).

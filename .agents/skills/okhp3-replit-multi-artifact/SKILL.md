@@ -1,5 +1,5 @@
 ---
-name: okhp3-replit-multi-artifact
+name: askjamie-replit-multi-artifact
 description: >
   Navigate and build in a Replit pnpm multi-artifact monorepo without silent
   failures. Covers the non-obvious rules that cause blank previews, port
@@ -11,12 +11,9 @@ description: >
   any time a second artifact is being added to an existing Replit project.
 license: MIT
 metadata:
-  author: Jamie Hill (OverKill Hill P³)
+  maintainer: AskJamie Concierge contributors
   version: "1.0.0"
   category: developer-tooling
-  origin: Glee-fully Chai Chasers Designathon — retrospective skill extraction
-  homepage: https://overkillhill.com
-  author-github: https://github.com/OKHP3
   maturity: draftable
   in_scope:
     - Artifact kinds and their bootstrap skill pairings
@@ -33,9 +30,14 @@ metadata:
     - Replit secrets and environment variables — read the environment-secrets skill
 ---
 
-# okhp3-replit-multi-artifact
+# askjamie-replit-multi-artifact
 
-**OverKill Hill P³** · [overkillhill.com](https://overkillhill.com) · [github.com/OKHP3](https://github.com/OKHP3)
+AskJamie Concierge development tooling. See the repository's
+[attribution and historical evidence boundary](../../../docs/licenses/replit-skills-provenance.md).
+
+Imported evaluation and benchmark records are historical upstream evidence,
+not validation of this adapted package. Derive repository coordinates from
+the current Git remote; never copy coordinates from historical records.
 
 Each of the following rules has caused a multi-turn debugging session in a real project. None of them is in the artifact creation walkthrough. This skill exists because knowing the rule *before* you hit the failure is worth four turns of debugging.
 
@@ -225,8 +227,7 @@ After `createArtifact()` returns, read the artifact kind's bootstrap skill (see 
 
 ---
 
-## About
+## Attribution
 
-Built from retrospective analysis of the Glee-fully Chai Chasers Designathon project at [overkillhill.com](https://overkillhill.com).
-By [Jamie Hill](https://overkillhill.com) · [OverKill Hill P³](https://overkillhill.com) · [github.com/OKHP3](https://github.com/OKHP3)
-MIT License — free to use, fork, and adapt. A nod to the source is appreciated.
+Adapted for AskJamie Concierge. Original authorship and MIT license are retained
+in [the provenance notice](../../../docs/licenses/replit-skills-provenance.md).

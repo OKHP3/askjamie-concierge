@@ -15,22 +15,12 @@ only when needed. No new daemon, scheduler, dependency, or platform API is added
 
 ## Borrowed methods
 
-Adapted from MIT-licensed OKHP3 packages inspected in
-`OKHP3/OverKill-Hill` at commit
-`6c5e35a7d0064b9d3749077a2ba5fd610fdf30f6`:
-
-| Source package under `.agents/skills/` | Version | Retained method / deliberate adaptation |
-|---|---|---|
-| `okhp3-replit-free-mode-autonomy` | 1.0.0 | Bounded work, useful interruption evidence, no paid escalation. Execution moves to the external host; no Replit retry schedule is installed. |
-| `okhp3-replit-github-sync` | 1.0.0 | Inspect and fetch before integration, preserve divergence, use protected PRs, verify exact source state. Existing session authority carries forward. |
-| `okhp3-replit-repl-janitor` | 1.0.1 | Generated branch names are insufficient deletion evidence. Task ownership must also be resolved before retiring Replit refs. |
-| `okhp3-repository-organizer` | 1.1.1 | Discover the actual project shape and put artifacts in the correct location. No generic app scaffold or unrelated reorganization. |
-| `okhp3-repository-janitor` | 0.1.0 | Preserve differences across clones/worktrees and distinguish merged, closed, and abandoned work. No automatic estate-wide cleanup. |
-
-Also inspected the stronger quota-checkpoint wording in Skillz's autonomy
-1.1.0 package at `6e61a92553b61534ac10c0872c8b84de6f129a2c`.
-The five packages above are provenance, not installation dependencies.
-The core contains the invariants needed to operate independently.
+Original authorship, package versions, and source commits are preserved in
+[the provenance notice](../../../../docs/licenses/replit-skills-provenance.md).
+Retained methods include bounded execution, interruption checkpoints, protected
+integration, evidence before deletion, project-aware organization, and preserving
+differences across checkouts. These source packages are not installation
+dependencies; the core contains the invariants needed to operate independently.
 
 ## Client contract
 

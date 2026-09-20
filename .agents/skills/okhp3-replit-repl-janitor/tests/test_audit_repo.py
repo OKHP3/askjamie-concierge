@@ -54,6 +54,7 @@ class AuditRepoTests(unittest.TestCase):
             self._git(root, "commit", "-qm", "reviewed work")
             reviewed_head = self._git(root, "rev-parse", "HEAD").strip()
 
+            self._add_remote(root, "upstream")
             check = audit_repo.prepare_branch_deletion(
                 root,
                 "feature/cleanup",
@@ -64,8 +65,88 @@ class AuditRepoTests(unittest.TestCase):
             self.assertEqual(check["reviewed_head"], reviewed_head)
             self.assertEqual(check["current_head"], reviewed_head)
             self.assertEqual(check["deletion_commands"], [
-                ["git", "push", "upstream", "--delete", "feature/cleanup"],
+                ["git", "push", f"--force-with-lease=refs/heads/feature/cleanup:{reviewed_head}",
+                 "upstream", ":refs/heads/feature/cleanup"],
                 ["git", "branch", "-d", "feature/cleanup"],
+            ])
+
+    def test_remote_tip_change_holds_even_when_local_tip_is_unchanged(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._init_repo(root)
+            self._git(root, "branch", "feature/cleanup")
+            reviewed = self._git(root, "rev-parse", "HEAD").strip()
+            self._add_remote(root)
+            self._git(root, "commit", "--allow-empty", "-qm", "new remote work")
+            advanced = self._git(root, "rev-parse", "HEAD").strip()
+            self._git(root, "push", "origin", "HEAD:refs/heads/feature/cleanup")
+            check = audit_repo.prepare_branch_deletion(root, "feature/cleanup", reviewed)
+            self.assertEqual(check["bucket"], "review")
+            self.assertEqual(check["current_head"], reviewed)
+            self.assertEqual(check["remote_head"], advanced)
+            self.assertEqual(check["deletion_commands"], [])
+
+    def test_lease_rejects_remote_advance_after_plan_and_preserves_branch(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._init_repo(root)
+            self._git(root, "branch", "feature/cleanup")
+            reviewed = self._git(root, "rev-parse", "HEAD").strip()
+            self._add_remote(root)
+            check = audit_repo.prepare_branch_deletion(root, "feature/cleanup", reviewed)
+            self._git(root, "commit", "--allow-empty", "-qm", "new remote work")
+            advanced = self._git(root, "rev-parse", "HEAD").strip()
+            self._git(root, "push", "origin", "HEAD:refs/heads/feature/cleanup")
+            # A fetch must not weaken the explicit expected-SHA lease.
+            self._git(root, "fetch", "origin")
+            result = subprocess.run(check["deletion_commands"][0], cwd=root,
+                                    capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(advanced, self._git(root, "ls-remote", "origin", "refs/heads/feature/cleanup"))
+
+    def test_matching_lease_deletes_only_the_reviewed_remote_branch(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._init_repo(root)
+            self._git(root, "branch", "feature/cleanup")
+            reviewed = self._git(root, "rev-parse", "HEAD").strip()
+            self._add_remote(root)
+            check = audit_repo.prepare_branch_deletion(root, "feature/cleanup", reviewed)
+            subprocess.run(check["deletion_commands"][0], cwd=root, check=True,
+                           capture_output=True, text=True)
+            self.assertEqual(self._git(root, "ls-remote", "origin", "refs/heads/feature/cleanup"), "")
+            self.assertIn(reviewed, self._git(root, "ls-remote", "origin", "refs/heads/main"))
+
+    def test_missing_remote_branch_and_unavailable_remote_fail_closed(self) -> None:
+        for has_remote in (False, True):
+            with self.subTest(has_remote=has_remote), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                self._init_repo(root)
+                if has_remote:
+                    self._add_remote(root)
+                self._git(root, "branch", "feature/cleanup")
+                reviewed = self._git(root, "rev-parse", "HEAD").strip()
+                with self.assertRaises(audit_repo.AuditError):
+                    audit_repo.prepare_branch_deletion(root, "feature/cleanup", reviewed)
+
+    def test_cli_nested_root_audits_the_entire_repository(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            self._init_repo(root)
+            nested = root / "docs" / "nested"
+            nested.mkdir(parents=True)
+            detritus = root / "attached_assets"
+            detritus.mkdir()
+            (detritus / "note.txt").write_text("tracked", encoding="utf-8")
+            (root / "Bad Name.txt").write_text("outside nested root", encoding="utf-8")
+            self._git(root, "add", "attached_assets/note.txt")
+            result = subprocess.run([sys.executable, str(SCRIPT), "--root", str(nested),
+                                     "--base", "main"], check=True, capture_output=True, text=True)
+            report = json.loads(result.stdout)
+            self.assertEqual(Path(report["root"]), root)
+            self.assertIn("Bad Name.txt", [item["path"] for item in report["naming_violations"]])
+            self.assertEqual(report["detritus_folders"], [
+                {"folder": "attached_assets", "tracked_file_count": 1},
             ])
 
     def test_cli_rejects_missing_deletion_approval_details(self) -> None:
@@ -155,6 +236,13 @@ class AuditRepoTests(unittest.TestCase):
         (root / "README.md").write_text("fixture\n", encoding="utf-8")
         self._git(root, "add", "README.md")
         self._git(root, "commit", "-qm", "initial")
+
+    def _add_remote(self, root: Path, name: str = "origin") -> Path:
+        remote = root / ".git" / "test-remote.git"
+        self._git(root, "init", "--bare", "-q", str(remote))
+        self._git(root, "remote", "add", name, str(remote))
+        self._git(root, "push", name, "--all")
+        return remote
 
 
 if __name__ == "__main__":

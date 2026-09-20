@@ -12,3 +12,8 @@ Full Apache License: docs/licenses/Apache-2.0.txt
 The scanner is an external dependency, not original project code. No upstream NOTICE file is included in the 2.1.0 distribution.
 
 Public browser dependency notices are included in apps/concierge/public/THIRD_PARTY_NOTICES.txt and distributed with the site.
+
+Repository-local Replit development skills are adapted from MIT-licensed
+third-party packages. Original attribution, license, and historical evidence
+boundaries: docs/licenses/replit-skills-provenance.md and
+docs/licenses/replit-skills-MIT.txt. These skills are not public catalog entries.

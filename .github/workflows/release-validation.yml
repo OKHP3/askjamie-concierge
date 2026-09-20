@@ -22,6 +22,11 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup-node
       - run: pnpm exec tsx scripts/check.ts "${{ matrix.check }}"
+      - name: Test project skill support tools
+        if: matrix.check == 'validation-smoke'
+        run: |
+          python3 -m unittest discover -s .agents/skills/askjamie-replit-repl-janitor/tests
+          python3 -m unittest discover -s .agents/skills/askjamie-replit-free-mode-autonomy/benchmarks -p 'test_*.py'
   security-scan:
     runs-on: ubuntu-latest
     steps:

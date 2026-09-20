@@ -1,5 +1,5 @@
 ---
-name: okhp3-replit-design-pipeline
+name: askjamie-replit-design-pipeline
 description: >
   The complete Replit design iteration loop as a single coherent workflow —
   extract → sandbox → variant → graduate. Use when redesigning, improving, or
@@ -12,12 +12,9 @@ description: >
   or is being built from scratch.
 license: MIT
 metadata:
-  author: Jamie Hill (OverKill Hill P³)
+  maintainer: AskJamie Concierge contributors
   version: "1.0.0"
   category: developer-tooling
-  origin: Glee-fully Chai Chasers Designathon — retrospective skill extraction
-  homepage: https://overkillhill.com
-  author-github: https://github.com/OKHP3
   maturity: draftable
   in_scope:
     - The decision tree — when to extract vs. build from scratch
@@ -34,9 +31,14 @@ metadata:
     - Launching a DESIGN subagent — read the design skill
 ---
 
-# okhp3-replit-design-pipeline
+# askjamie-replit-design-pipeline
 
-**OverKill Hill P³** · [overkillhill.com](https://overkillhill.com) · [github.com/OKHP3](https://github.com/OKHP3)
+AskJamie Concierge development tooling. See the repository's
+[attribution and historical evidence boundary](../../../docs/licenses/replit-skills-provenance.md).
+
+Imported evaluation and benchmark records are historical upstream evidence,
+not validation of this adapted package. Derive repository coordinates from
+the current Git remote; never copy coordinates from historical records.
 
 Replit's design canvas exposes five interlocking skills: **mockup-sandbox**, **mockup-extract**, **mockup-graduate**, **design-exploration**, and the **design** (DESIGN subagent) skill. None of them explains the full loop as a decision tree. This skill does.
 
@@ -228,8 +230,7 @@ When activating this pipeline, read skills in this order — only what you need 
 
 ---
 
-## About
+## Attribution
 
-Built from retrospective analysis of the Glee-fully Chai Chasers Designathon project at [overkillhill.com](https://overkillhill.com).
-By [Jamie Hill](https://overkillhill.com) · [OverKill Hill P³](https://overkillhill.com) · [github.com/OKHP3](https://github.com/OKHP3)
-MIT License — free to use, fork, and adapt. A nod to the source is appreciated.
+Adapted for AskJamie Concierge. Original authorship and MIT license are retained
+in [the provenance notice](../../../docs/licenses/replit-skills-provenance.md).

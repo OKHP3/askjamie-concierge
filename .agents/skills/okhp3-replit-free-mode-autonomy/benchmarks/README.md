@@ -33,15 +33,23 @@ conflicting activation decisions. It never treats a missing event as `false`.
 
 ## Run
 
+Run from the repository root. On Windows, substitute `py -3` for `python3`.
+The bundled results are historical upstream evidence. Use separate local output
+paths for new telemetry so that earlier records are preserved.
+
 ```bash
-python3 replit/okhp3-replit-free-mode-autonomy/benchmarks/run-native-telemetry.py \
-  --events /path/to/replit-agent-events.json
+python3 .agents/skills/askjamie-replit-free-mode-autonomy/benchmarks/run-native-telemetry.py \
+  --events /path/to/replit-agent-events.json \
+  --benchmark /path/to/new-benchmark.json \
+  --results /path/to/new-results.md
 ```
 
 The command validates the export, computes the native trigger confusion matrix
 when all 12 frozen queries have explicit activation events, and writes the
-native telemetry section of `evals/results.md` and the native fields in
-`benchmarks/benchmark.json`. With a partial export, counts and coverage are
+native telemetry section of the selected results file and the native fields in
+the selected benchmark file. Seed these output files with copies of the bundled
+`evals/results.md` and `benchmarks/benchmark.json` before running, and label the
+new run with its actual source revision. With a partial export, counts and coverage are
 reported but precision and recall remain `null`.
 
 Use `--validate-only` for a dry run that does not modify benchmark artifacts.

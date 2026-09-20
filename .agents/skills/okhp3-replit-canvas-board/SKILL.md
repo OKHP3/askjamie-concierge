@@ -1,5 +1,5 @@
 ---
-name: okhp3-replit-canvas-board
+name: askjamie-replit-canvas-board
 description: >
   Plan and build a structured multi-frame Replit canvas presentation board —
   hero rows, labeled zones, iframe lifecycle (building→live), coordinate layouts,
@@ -10,12 +10,9 @@ description: >
   than ad-hoc placement.
 license: MIT
 metadata:
-  author: Jamie Hill (OverKill Hill P³)
+  maintainer: AskJamie Concierge contributors
   version: "1.0.0"
   category: developer-tooling
-  origin: Glee-fully Chai Chasers Designathon — retrospective skill extraction
-  homepage: https://overkillhill.com
-  author-github: https://github.com/OKHP3
   maturity: draftable
   in_scope:
     - Strategic planning of multi-frame canvas layouts (zones, gutters, hero rows)
@@ -31,9 +28,14 @@ metadata:
     - Graduating a canvas mockup to production — read the mockup-graduate skill
 ---
 
-# okhp3-replit-canvas-board
+# askjamie-replit-canvas-board
 
-**OverKill Hill P³** · [overkillhill.com](https://overkillhill.com) · [github.com/OKHP3](https://github.com/OKHP3)
+AskJamie Concierge development tooling. See the repository's
+[attribution and historical evidence boundary](../../../docs/licenses/replit-skills-provenance.md).
+
+Imported evaluation and benchmark records are historical upstream evidence,
+not validation of this adapted package. Derive repository coordinates from
+the current Git remote; never copy coordinates from historical records.
 
 A portable Replit Agent Skill for planning and organising the workspace canvas as a **structured presentation board** — not just placing shapes, but producing a layout that a judge, reviewer, or collaborator can scan in under 30 seconds.
 
@@ -261,8 +263,7 @@ await focusCanvasShapes({
 
 ---
 
-## About
+## Attribution
 
-Built from retrospective analysis of the Glee-fully Chai Chasers Designathon project at [overkillhill.com](https://overkillhill.com).
-By [Jamie Hill](https://overkillhill.com) · [OverKill Hill P³](https://overkillhill.com) · [github.com/OKHP3](https://github.com/OKHP3)
-MIT License — free to use, fork, and adapt. A nod to the source is appreciated.
+Adapted for AskJamie Concierge. Original authorship and MIT license are retained
+in [the provenance notice](../../../docs/licenses/replit-skills-provenance.md).

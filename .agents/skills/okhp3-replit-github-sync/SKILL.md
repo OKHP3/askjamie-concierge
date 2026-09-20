@@ -1,5 +1,5 @@
 ---
-name: okhp3-replit-github-sync
+name: askjamie-replit-github-sync
 description: >
   Recover and maintain safe GitHub synchronization for a Replit project. Use
   when Replit reports PUSH_REJECTED, cannot commit through its UI, or a project
@@ -9,20 +9,22 @@ description: >
   use to force-push, discard unreviewed work, or bypass branch protection.
 license: MIT
 metadata:
-  author: Jamie Hill (OverKill Hill P³)
+  maintainer: AskJamie Concierge contributors
   version: "1.0.0"
   category: developer-tooling
-  origin: okhp3/skillz
-  homepage: https://overkillhill.com
-  author-github: https://github.com/OKHP3
   maturity: draftable
   in_scope: "One Replit checkout's GitHub sync diagnosis, safe pull/commit/push recovery, branch handoff, and approved PR merge verification."
   out_of_scope: "Force-pushes, secret handling, automatic conflict resolution, deletion, bypassing protections, or unrelated repository cleanup."
 ---
 
-# okhp3-replit-github-sync
+# askjamie-replit-github-sync
 
-**OverKill Hill P³** · [overkillhill.com](https://overkillhill.com) · [github.com/OKHP3](https://github.com/OKHP3)
+AskJamie Concierge development tooling. See the repository's
+[attribution and historical evidence boundary](../../../docs/licenses/replit-skills-provenance.md).
+
+Imported evaluation and benchmark records are historical upstream evidence,
+not validation of this adapted package. Derive repository coordinates from
+the current Git remote; never copy coordinates from historical records.
 
 Replit's Git UI can be a useful surface, but it is not the source of truth when
 the workspace and GitHub disagree. This skill establishes the actual Git state,
@@ -154,9 +156,7 @@ Return:
 - post-action `git status`, target-ref comparison, commit SHA, and relevant
   validation result.
 
-## About
+## Attribution
 
-Built by [Jamie Hill](https://overkillhill.com) · [OverKill Hill P³](https://overkillhill.com)
-Published at [github.com/OKHP3](https://github.com/OKHP3)
-Part of the [OKHP3/skillz](https://github.com/OKHP3/skillz) Agent Skill library.
-MIT License -- free to use, fork, and adapt. A nod to the source is appreciated.
+Adapted for AskJamie Concierge. Original authorship and MIT license are retained
+in [the provenance notice](../../../docs/licenses/replit-skills-provenance.md).

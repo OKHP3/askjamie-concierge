@@ -61,12 +61,13 @@ def run(args: list[str], cwd: Path) -> str:
     return result.stdout.strip()
 
 
-def ensure_repository(root: Path) -> None:
+def ensure_repository(root: Path) -> Path:
     if not root.is_dir():
         raise AuditError(f"repository root does not exist: {root}")
     inside = run(["git", "rev-parse", "--is-inside-work-tree"], root)
     if inside != "true":
         raise AuditError(f"not inside a Git work tree: {root}")
+    return Path(run(["git", "rev-parse", "--show-toplevel"], root)).resolve()
 
 
 def ensure_base(root: Path, base: str) -> None:
@@ -85,12 +86,16 @@ def prepare_branch_deletion(
     The reviewed SHA is the approval boundary.  A changed tip produces a
     review hold with no deletion commands; a missing branch or other Git
     failure raises visibly.  When the tip matches, the returned commands
-    preserve the required remote-first order.
+    preserve the required remote-first order. The live remote tip must also
+    match, and an explicit SHA lease protects against changes after this check.
     """
     if not branch:
         raise AuditError("branch is required for the pre-delete check")
     if not reviewed_head:
         raise AuditError("reviewed branch head is required for the pre-delete check")
+    run(["git", "check-ref-format", f"refs/heads/{branch}"], root)
+    if not remote or remote.startswith("-"):
+        raise AuditError("remote must be a non-option remote name or URL")
 
     current_head = run(
         ["git", "rev-parse", "--verify", f"refs/heads/{branch}^{{commit}}"],
@@ -109,11 +114,31 @@ def prepare_branch_deletion(
         })
         return result
 
+    remote_ref = f"refs/heads/{branch}"
+    remote_output = run(
+        ["git", "ls-remote", "--exit-code", "--heads", remote, remote_ref], root,
+    )
+    matches = [
+        fields[0] for line in remote_output.splitlines()
+        if len(fields := line.split()) == 2 and fields[1] == remote_ref
+    ]
+    if len(matches) != 1:
+        raise AuditError(f"could not establish exact remote tip for {remote_ref}")
+    result["remote_head"] = matches[0]
+    if matches[0] != reviewed_head:
+        result.update({
+            "bucket": "review",
+            "reason": "remote branch tip changed since review",
+            "deletion_commands": [],
+        })
+        return result
+
     result.update({
         "bucket": "delete",
-        "reason": "branch tip matches reviewed head",
+        "reason": "local and live remote branch tips match reviewed head",
         "deletion_commands": [
-            ["git", "push", remote, "--delete", branch],
+            ["git", "push", f"--force-with-lease={remote_ref}:{reviewed_head}",
+             remote, f":{remote_ref}"],
             ["git", "branch", "-d", branch],
         ],
     })
@@ -258,7 +283,7 @@ def main() -> int:
     args = parse_args()
     root = Path(args.root).resolve()
     try:
-        ensure_repository(root)
+        root = ensure_repository(root)
         if args.fetch:
             run(["git", "fetch", "--all"], root)
         if args.check_delete:
