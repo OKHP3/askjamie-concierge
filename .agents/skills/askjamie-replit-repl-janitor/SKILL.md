@@ -267,7 +267,8 @@ Return:
 ## Resources
 
 - `scripts/audit-repo.py` — deterministic, no-fetch-by-default JSON audit of
-  branches, naming violations, and nested detritus.
+  branches, naming violations, and nested detritus. It resolves `--root` to the
+  enclosing Git root, so invocation from a subfolder audits the full repository.
 - `references/naming-conventions.md` — portable kebab-case policy and structural
   exceptions.
 - `references/skill-architecture.md` — intent, scope, and brand

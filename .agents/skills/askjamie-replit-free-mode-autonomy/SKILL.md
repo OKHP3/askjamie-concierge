@@ -8,10 +8,10 @@ description: >
   moving without unnecessary approval pauses. Does not bypass quotas or human
   approval.
 license: MIT
-compatibility: >
-  Any Agent Skills-compatible client with filesystem access. Replit Routines are
-  optional host support for scheduled retry opportunities and are conversation-bound.
 metadata:
+  compatibility: >
+    Any Agent Skills-compatible client with filesystem access. Replit Routines are
+    optional host support for scheduled retry opportunities and are conversation-bound.
   maintainer: AskJamie Concierge contributors
   version: "1.1.0"
   category: developer-tooling
