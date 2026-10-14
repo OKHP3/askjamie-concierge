@@ -7,6 +7,6 @@
   "dependencies": {
     "@askjamie/catalog-schema": "workspace:*",
     "yaml": "^2.8.0",
-    "zod": "^4.3.6"
+    "zod": "^4.6.6"
   }
 }
